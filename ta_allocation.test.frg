@@ -18,12 +18,12 @@ test suite for init {
         StudentID = `p1 -> 1
         i9Status = `p1 -> `true
         academicProbation = `p1 -> `false
+        //CourseAllocatedTo = `p1 -> `c1
         numJobs =  `p1 -> 0
-        CurrentlyAllocatedCand = `p1 -> `false
         MaxTAs = `c1 -> 2
         CourseID = `c1 -> 1
-        OfferedNextSem =  `c1 -> `true     
-        CurrentlyAllocatedCourse = `c1 -> `false
+        OfferedNextSem =  `c1 -> `true   
+        Allocations = `c1 -> `p1 -> `false
     }
 
     // case a candidate is allocated already
@@ -37,11 +37,10 @@ test suite for init {
         i9Status = `p1 -> `true
         academicProbation = `p1 -> `false
         numJobs =  `p1 -> 0
-        CurrentlyAllocatedCand = `p1 -> `true
+        CourseAllocatedTo = `p1 -> `c1
         MaxTAs = `c1 -> 2
         CourseID = `c1 -> 1
         OfferedNextSem =  `c1 -> `true     
-        CurrentlyAllocatedCourse = `c1 -> `false
     }
 
     // case a course is allocated already
@@ -55,47 +54,9 @@ test suite for init {
         i9Status = `p1 -> `true
         academicProbation = `p1 -> `false
         numJobs =  `p1 -> 0
-        CurrentlyAllocatedCand = `p1 -> `false
         MaxTAs = `c1 -> 2
         CourseID = `c1 -> 1
         OfferedNextSem =  `c1 -> `true     
-        CurrentlyAllocatedCourse = `c1 -> `true
-    }
-
-    // case a course already has a mapping to a candidate for its allocation
-    example courseHasAllocations is {not init} for {
-        Boolean =  `true + `false
-        True = `true
-        False = `false
-        Candidate = `p1 
-        Course = `c1
-        StudentID = `p1 -> 1
-        i9Status = `p1 -> `true
-        academicProbation = `p1 -> `false
-        numJobs =  `p1 -> 0
-        CurrentlyAllocatedCand = `p1 -> `false
-        MaxTAs = `c1 -> 2
-        CourseID = `c1 -> 1
-        OfferedNextSem =  `c1 -> `true     
-        CurrentlyAllocatedCourse = `c1 -> `true
-        Allocations = `c1 -> `p1 -> `true
-    }
-
-    example candHasCourseAllocation is {not init} for {
-        Boolean =  `true + `false
-        True = `true
-        False = `false
-        Candidate = `p1 
-        Course = `c1
-        StudentID = `p1 -> 1
-        i9Status = `p1 -> `true
-        academicProbation = `p1 -> `false
-        numJobs =  `p1 -> 0
-        CourseAllocatedTo = `p1 -> `c1
-        CurrentlyAllocatedCand = `p1 -> `false
-        MaxTAs = `c1 -> 2
-        CourseID = `c1 -> 1
-        OfferedNextSem =  `c1 -> `true     
-        CurrentlyAllocatedCourse = `c1 -> `true
+        Allocations = `c1 -> `p1 -> `false
     }
 }

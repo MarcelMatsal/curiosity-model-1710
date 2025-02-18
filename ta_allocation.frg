@@ -23,8 +23,6 @@ sig Candidate {
     academicProbation: one Boolean,
     // the total number of jobs the candidate currently has
     numJobs: one Int,
-    // boolean of whether the TA has already been allocated
-    CurrentlyAllocatedCand: one Boolean,
     // the actual course the TA was allocated to
     CourseAllocatedTo: lone Course
 }
@@ -40,9 +38,6 @@ sig Course {
     OfferedNextSem: one Boolean,
     // pfunc mapping from students that applied to TA and how they rank the TA
     CandidateRankings: pfunc Int -> Int,
-    // 
-    CurrentlyAllocatedCourse: one Boolean,
-
     // pfunc mapping from a candidate to a boolean 
     Allocations: pfunc Candidate -> Boolean
 }
@@ -114,15 +109,13 @@ pred init {
     
     // no candidate should be allocated to a course
     all candidate: Candidate | {
-        candidate.CurrentlyAllocatedCand = False 
         no candidate.CourseAllocatedTo
     }
 
     // the courses should have no current allocations
     all course: Course, candidate: Candidate | {
         // maybe some merit in making this equal to False instead of there being none
-        no course.Allocations[candidate]
-        course.CurrentlyAllocatedCourse = False
+        course.Allocations[candidate] = False
 
     }
     // 
