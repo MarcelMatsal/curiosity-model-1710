@@ -52,7 +52,7 @@ sig Course {
     CandidateRankings: pfunc Int -> Int,
     // 
     CurrentlyAllocated: one Boolean,
-    // 
+    // j
     Allocations: pfunc 
 
 }
