@@ -24,7 +24,9 @@ sig Candidate {
     // the total number of jobs the candidate currently has
     numJobs: one Int,
     // the actual course the TA was allocated to
-    CourseAllocatedTo: lone Course
+    CourseAllocatedTo: lone Course,
+    // if the student is international or not
+    isInternational: one Boolean
 }
 
         
@@ -71,9 +73,17 @@ pred availableCourses {
 }
 
 
-// predicate to determine if a candidate is el
-pred isElligible[c: Candidate]{
-
+// Predicate to determine if a candidate is elible to TA
+// Includes criteria of:
+// - has completed I9
+// - is not on academic probation
+// - has less than 2 jobs (if they are international)
+pred isElligible[c: Candidate] {
+    c.i9Status = True // I9
+    and
+    c.academicProbation = False // No probation
+    and
+    (c.isInternational implies c.numJobs < 2) // International students can only have 2 jobs (including the TA job)
 }
 
 // verify that the rankings are continuous
