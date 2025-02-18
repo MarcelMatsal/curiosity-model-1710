@@ -92,31 +92,189 @@ test suite for validCandidate {
         StudentID = `p1 -> 1
         i9Status = `p1 -> `true
         academicProbation = `p1 -> `false
-        Applications = `p1 -> `c1 -> 1
+        Applications = `p1 -> `c1 -> 1 + `p1 -> `c2 -> 2 + `p1 -> `c3 -> 3 + `p1 -> `c4 -> 4
         numJobs =  `p1 -> 0
-        MaxTAs = `c1 -> 2
-        CourseID = `c1 -> 1
-        OfferedNextSem =  `c1 -> `true   
-        Allocations = `c1 -> `p1 -> `false
+        MaxTAs = `c1 -> 2 + `c2 -> 1 + `c3 -> 3 + `c4 -> 2
+        CourseID = `c1 -> 1 + `c2 -> 2 + `c3 -> 3 + `c4 -> 4
+        OfferedNextSem =  `c1 -> `true + `c2 -> `true + `c3 -> `true + `c4 -> `true
+        Allocations = `c1 -> `p1 -> `false + `c2 -> `p1 -> `false + `c3 -> `p1 -> `false + `c4 -> `p1 -> `false
     }
 
 
-    // case where ranked multiple courses and doubled up some rankings
+    // cases where ranked multiple courses and doubled up some rankings
+    example correct_candidate3 is {validCandidate} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 
+        Course = `c1 + `c2 + `c3 + `c4
+        StudentID = `p1 -> 1
+        i9Status = `p1 -> `true
+        academicProbation = `p1 -> `false
+        Applications = `p1 -> `c1 -> 1 + `p1 -> `c2 -> 1 + `p1 -> `c3 -> 2 + `p1 -> `c4 -> 3
+        numJobs =  `p1 -> 0
+        MaxTAs = `c1 -> 2 + `c2 -> 1 + `c3 -> 3 + `c4 -> 2
+        CourseID = `c1 -> 1 + `c2 -> 2 + `c3 -> 3 + `c4 -> 4
+        OfferedNextSem =  `c1 -> `true + `c2 -> `true + `c3 -> `true + `c4 -> `true
+        Allocations = `c1 -> `p1 -> `false + `c2 -> `p1 -> `false + `c3 -> `p1 -> `false + `c4 -> `p1 -> `false
+    }
 
+    example correct_candidate4 is {validCandidate} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 
+        Course = `c1 + `c2 + `c3 + `c4
+        StudentID = `p1 -> 1
+        i9Status = `p1 -> `true
+        academicProbation = `p1 -> `false
+        Applications = `p1 -> `c1 -> 1 + `p1 -> `c2 -> 2 + `p1 -> `c3 -> 2 + `p1 -> `c4 -> 3
+        numJobs =  `p1 -> 0
+        MaxTAs = `c1 -> 2 + `c2 -> 1 + `c3 -> 3 + `c4 -> 2
+        CourseID = `c1 -> 1 + `c2 -> 2 + `c3 -> 3 + `c4 -> 4
+        OfferedNextSem =  `c1 -> `true + `c2 -> `true + `c3 -> `true + `c4 -> `true
+        Allocations = `c1 -> `p1 -> `false + `c2 -> `p1 -> `false + `c3 -> `p1 -> `false + `c4 -> `p1 -> `false
+    }
 
-
-    // case where ranked less than 4 coureses
-
+    // case where ranked less than 4 coureses (doesn't have to rank all available)
+    example correct_candidate5 is {validCandidate} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 
+        Course = `c1 + `c2 + `c3 + `c4
+        StudentID = `p1 -> 1
+        i9Status = `p1 -> `true
+        academicProbation = `p1 -> `false
+        Applications = `p1 -> `c1 -> 1 + `p1 -> `c2 -> 2
+        numJobs =  `p1 -> 0
+        MaxTAs = `c1 -> 2 + `c2 -> 1 + `c3 -> 3 + `c4 -> 2
+        CourseID = `c1 -> 1 + `c2 -> 2 + `c3 -> 3 + `c4 -> 4
+        OfferedNextSem =  `c1 -> `true + `c2 -> `true + `c3 -> `true + `c4 -> `true
+        Allocations = `c1 -> `p1 -> `false + `c2 -> `p1 -> `false + `c3 -> `p1 -> `false + `c4 -> `p1 -> `false
+    }
 
 
     // case did not rank any course
-
-
+    example invalid_candidate is {not validCandidate} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 
+        Course = `c1 + `c2 + `c3 + `c4
+        StudentID = `p1 -> 1
+        i9Status = `p1 -> `true
+        academicProbation = `p1 -> `false
+        numJobs =  `p1 -> 0
+        MaxTAs = `c1 -> 2 + `c2 -> 1 + `c3 -> 3 + `c4 -> 2
+        CourseID = `c1 -> 1 + `c2 -> 2 + `c3 -> 3 + `c4 -> 4
+        OfferedNextSem =  `c1 -> `true + `c2 -> `true + `c3 -> `true + `c4 -> `true
+        Allocations = `c1 -> `p1 -> `false + `c2 -> `p1 -> `false + `c3 -> `p1 -> `false + `c4 -> `p1 -> `false
+    }
+    // case ranked too many courses
+    example invalid_candidate2 is {not validCandidate} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 
+        Course = `c1 + `c2 + `c3 + `c4 + `c5
+        StudentID = `p1 -> 1
+        i9Status = `p1 -> `true
+        academicProbation = `p1 -> `false
+        numJobs =  `p1 -> 0
+        Applications = `p1 -> `c1 -> 1 + `p1 -> `c2 -> 1 + `p1 -> `c3 -> 2 + `p1 -> `c4 -> 3 + `p1 -> `c5 -> 4
+        MaxTAs = `c1 -> 2 + `c2 -> 1 + `c3 -> 3 + `c4 -> 2 + `c5 -> 2 
+        CourseID = `c1 -> 1 + `c2 -> 2 + `c3 -> 3 + `c4 -> 4 + `c5 -> 5
+        OfferedNextSem =  `c1 -> `true + `c2 -> `true + `c3 -> `true + `c4 -> `true + `c5 -> `true
+        Allocations = `c1 -> `p1 -> `false + `c2 -> `p1 -> `false + `c3 -> `p1 -> `false + `c4 -> `p1 -> `false 
+            + `c5 -> `p1 -> `false
+    }
 
     // case ranked courses out of bounds
+    example invalid_candidate3 is {not validCandidate} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 
+        Course = `c1 + `c2 + `c3 + `c4
+        StudentID = `p1 -> 1
+        i9Status = `p1 -> `true
+        academicProbation = `p1 -> `false
+        Applications = `p1 -> `c1 -> 0
+        numJobs =  `p1 -> 0
+        MaxTAs = `c1 -> 2 + `c2 -> 1 + `c3 -> 3 + `c4 -> 2
+        CourseID = `c1 -> 1 + `c2 -> 2 + `c3 -> 3 + `c4 -> 4
+        OfferedNextSem =  `c1 -> `true + `c2 -> `true + `c3 -> `true + `c4 -> `true
+        Allocations = `c1 -> `p1 -> `false + `c2 -> `p1 -> `false + `c3 -> `p1 -> `false + `c4 -> `p1 -> `false
+    }
 
+    example invalid_candidate4 is {not validCandidate} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 
+        Course = `c1 + `c2 + `c3 + `c4
+        StudentID = `p1 -> 1
+        i9Status = `p1 -> `true
+        academicProbation = `p1 -> `false
+        Applications = `p1 -> `c1 -> 5
+        numJobs =  `p1 -> 0
+        MaxTAs = `c1 -> 2 + `c2 -> 1 + `c3 -> 3 + `c4 -> 2
+        CourseID = `c1 -> 1 + `c2 -> 2 + `c3 -> 3 + `c4 -> 4
+        OfferedNextSem =  `c1 -> `true + `c2 -> `true + `c3 -> `true + `c4 -> `true
+        Allocations = `c1 -> `p1 -> `false + `c2 -> `p1 -> `false + `c3 -> `p1 -> `false + `c4 -> `p1 -> `false
+    }
 
 
     // case ranked courses with gap in ranking
+    example invalid_candidate5 is {not validCandidate} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 
+        Course = `c1 + `c2 + `c3 + `c4
+        StudentID = `p1 -> 1
+        i9Status = `p1 -> `true
+        academicProbation = `p1 -> `false
+        Applications = `p1 -> `c1 -> 1 + `p1 -> `c2 -> 3 + `p1 -> `c3 -> 4
+        numJobs =  `p1 -> 0
+        MaxTAs = `c1 -> 2 + `c2 -> 1 + `c3 -> 3 + `c4 -> 2
+        CourseID = `c1 -> 1 + `c2 -> 2 + `c3 -> 3 + `c4 -> 4
+        OfferedNextSem =  `c1 -> `true + `c2 -> `true + `c3 -> `true + `c4 -> `true
+        Allocations = `c1 -> `p1 -> `false + `c2 -> `p1 -> `false + `c3 -> `p1 -> `false + `c4 -> `p1 -> `false
+    }
 
+    example invalid_candidate6 is {not validCandidate} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 
+        Course = `c1 + `c2 + `c3 + `c4
+        StudentID = `p1 -> 1
+        i9Status = `p1 -> `true
+        academicProbation = `p1 -> `false
+        Applications = `p1 -> `c1 -> 1 + `p1 -> `c2 -> 2 + `p1 -> `c3 -> 4
+        numJobs =  `p1 -> 0
+        MaxTAs = `c1 -> 2 + `c2 -> 1 + `c3 -> 3 + `c4 -> 2
+        CourseID = `c1 -> 1 + `c2 -> 2 + `c3 -> 3 + `c4 -> 4
+        OfferedNextSem =  `c1 -> `true + `c2 -> `true + `c3 -> `true + `c4 -> `true
+        Allocations = `c1 -> `p1 -> `false + `c2 -> `p1 -> `false + `c3 -> `p1 -> `false + `c4 -> `p1 -> `false
+    }
+
+    example invalid_candidate7 is {not validCandidate} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 
+        Course = `c1 + `c2 + `c3 + `c4
+        StudentID = `p1 -> 1
+        i9Status = `p1 -> `true
+        academicProbation = `p1 -> `false
+        Applications = `p1 -> `c1 -> 1 + `p1 -> `c2 -> 1 + `p1 -> `c3 -> 4
+        numJobs =  `p1 -> 0
+        MaxTAs = `c1 -> 2 + `c2 -> 1 + `c3 -> 3 + `c4 -> 2
+        CourseID = `c1 -> 1 + `c2 -> 2 + `c3 -> 3 + `c4 -> 4
+        OfferedNextSem =  `c1 -> `true + `c2 -> `true + `c3 -> `true + `c4 -> `true
+        Allocations = `c1 -> `p1 -> `false + `c2 -> `p1 -> `false + `c3 -> `p1 -> `false + `c4 -> `p1 -> `false
+    }
 }
