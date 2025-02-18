@@ -24,7 +24,7 @@ sig Candidate {
     // the total number of jobs the candidate currently has
     numJobs: one Int,
     // boolean of whether the TA has already been allocated
-    CurrentlyAllocated: one Boolean,
+    CurrentlyAllocatedCand: one Boolean,
     // the actual course the TA was allocated to
     CourseAllocatedTo: lone Course
 }
@@ -41,7 +41,7 @@ sig Course {
     // pfunc mapping from students that applied to TA and how they rank the TA
     CandidateRankings: pfunc Int -> Int,
     // 
-    CurrentlyAllocated: one Boolean,
+    CurrentlyAllocatedCourse: one Boolean,
 
     // pfunc mapping from a candidate to a boolean 
     Allocations: pfunc Candidate -> Boolean
@@ -57,7 +57,7 @@ pred validCourses {
         course.CourseID > 0
         course2.CourseID > 0
         // two different courses must have different IDs
-        course.courseID != course2.courseID
+        course.CourseID != course2.CourseID
     }
 }
 
@@ -91,9 +91,9 @@ pred isElligible[c: Candidate]{
 pred validCandidate {
     // all TAs must have different StudentID numbers
     all disj cand1, cand2: Candidate | {
-        ta1.StudentID > 0
-        ta2.StudentID > 0
-        ta1.StudentID != ta2.StudentID
+        cand1.StudentID > 0
+        cand2.StudentID > 0
+        cand1.StudentID != cand2.StudentID
     }
 
     // the rankings of the candidate must be continuous
@@ -114,7 +114,7 @@ pred init {
     
     // no candidate should be allocated to a course
     all candidate: Candidate | {
-        candidate.CurrentlyAllocated = False 
+        candidate.CurrentlyAllocatedCand = False 
         no candidate.CourseAllocatedTo
     }
 
@@ -122,7 +122,7 @@ pred init {
     all course: Course, candidate: Candidate | {
         // maybe some merit in making this equal to False instead of there being none
         no course.Allocations[candidate]
-        course.CurrentlyAllocated = False
+        course.CurrentlyAllocatedCourse = False
 
     }
     // 
@@ -169,13 +169,10 @@ pred validAllocation {
 //  // predicate that ensures that every student either has a pass or fail for the interview for every course 
 // }
 
-
+// run {}
 
 
 // run here
 
-
-
-pred 
 
 

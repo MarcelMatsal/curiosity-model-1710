@@ -3,3 +3,99 @@
 open "ta_allocation.frg"
 
 // write the tests here for our model
+
+
+
+test suite for init {
+
+    // most basic condition, 1 cand and 1 course where no one is matched to anything
+    example basicCondition is {init} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 
+        Course = `c1
+        StudentID = `p1 -> 1
+        i9Status = `p1 -> `true
+        academicProbation = `p1 -> `false
+        numJobs =  `p1 -> 0
+        CurrentlyAllocatedCand = `p1 -> `false
+        MaxTAs = `c1 -> 2
+        CourseID = `c1 -> 1
+        OfferedNextSem =  `c1 -> `true     
+        CurrentlyAllocatedCourse = `c1 -> `false
+    }
+
+    // case a candidate is allocated already
+    example candIsAllocated is {not init} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 
+        Course = `c1
+        StudentID = `p1 -> 1
+        i9Status = `p1 -> `true
+        academicProbation = `p1 -> `false
+        numJobs =  `p1 -> 0
+        CurrentlyAllocatedCand = `p1 -> `true
+        MaxTAs = `c1 -> 2
+        CourseID = `c1 -> 1
+        OfferedNextSem =  `c1 -> `true     
+        CurrentlyAllocatedCourse = `c1 -> `false
+    }
+
+    // case a course is allocated already
+    example courseIsAllocated is {not init} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 
+        Course = `c1
+        StudentID = `p1 -> 1
+        i9Status = `p1 -> `true
+        academicProbation = `p1 -> `false
+        numJobs =  `p1 -> 0
+        CurrentlyAllocatedCand = `p1 -> `false
+        MaxTAs = `c1 -> 2
+        CourseID = `c1 -> 1
+        OfferedNextSem =  `c1 -> `true     
+        CurrentlyAllocatedCourse = `c1 -> `true
+    }
+
+    // case a course already has a mapping to a candidate for its allocation
+    example courseHasAllocations is {not init} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 
+        Course = `c1
+        StudentID = `p1 -> 1
+        i9Status = `p1 -> `true
+        academicProbation = `p1 -> `false
+        numJobs =  `p1 -> 0
+        CurrentlyAllocatedCand = `p1 -> `false
+        MaxTAs = `c1 -> 2
+        CourseID = `c1 -> 1
+        OfferedNextSem =  `c1 -> `true     
+        CurrentlyAllocatedCourse = `c1 -> `true
+        Allocations = `c1 -> `p1 -> `true
+    }
+
+    example candHasCourseAllocation is {not init} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 
+        Course = `c1
+        StudentID = `p1 -> 1
+        i9Status = `p1 -> `true
+        academicProbation = `p1 -> `false
+        numJobs =  `p1 -> 0
+        CourseAllocatedTo = `p1 -> `c1
+        CurrentlyAllocatedCand = `p1 -> `false
+        MaxTAs = `c1 -> 2
+        CourseID = `c1 -> 1
+        OfferedNextSem =  `c1 -> `true     
+        CurrentlyAllocatedCourse = `c1 -> `true
+    }
+}
