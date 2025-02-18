@@ -22,34 +22,23 @@ one sig True, False extends Boolean {}
 // sig regularStudent extends Studnet {}
 
 // make this abstract if we want to go UTA and HTA route
-sig TA {
+sig Candidate {
     // ID to be able to reference each TA
     StudentID: one Int,
-    // pfunc to know what courses the TA applied to TA (maps course ID to boolean)
-    Applications: pfunc Int -> Boolean 
+    // pfunc to know what courses the TA applied to TA (maps course ID to ranking from the TA)
+    Applications: pfunc Int -> Int,
+    // i9 form status of candidate (if they filled it out)
+    i9Status: one Boolean,
+    // if the candidate has been on academic probation
+    academicProbation: one Boolea,
+    // the total number of jobs the candidate currently has
+    numJobs: one Int,
+    // boolean of whether the TA has already been allocated
+    CurrentlyAllocated: one Boolean,
 
-    // other possible fields:
-    // list of courses that TA has taken before
-    // pfunc mapping from courses taken to bool for passed the course with acceptable grade/grade they received
-    // ranking for the courses they applied to
-
+    CourseAllocatedTo: one Course
 }
 
-
-/*
-Section in case we want to take the UTA/HTA route of distinguishing those
-*/
-// sig UTA extends TA {}
-
-// sig HTA extends TA {}
-
-
-    // maybe fields for 
-        // having taken the course before
-        // bool for passed the course with acceptable grade (could change this to the actual grade they received)
-        // something that indicates what courses they applied to
-            // ranking for the courses they applied to
-        // int that is a student ID number
         
     
 sig Course {
@@ -59,10 +48,12 @@ sig Course {
     CourseID: one Int,
     // boolean whether the course is offered next semester
     OfferedNextSem: one Boolean,
-    // pfunc mapping from students that applied to TA and if they passed the interview
-    TAInterviews: pfunc Int -> Boolean
-    // possible fields for Max number of students/enrollment
-    // possible field for professor
+    // pfunc mapping from students that applied to TA and how they rank the TA
+    CandidateRankings: pfunc Int -> Int,
+    // 
+    CurrentlyAllocated: one Boolean,
+    // 
+    Allocations: pfunc 
 
 }
 
@@ -85,7 +76,19 @@ pred validCourses {
 }
 
 
-pred validTAs {
+// predicate to determine if a 
+pred isElligible[c: Candidate]{
+
+}
+
+// verify that the rankings are continuous
+// pred ranking verifier (must be linear)
+
+// numberApplications {
+// a ta shoud not have applied to more than 4 and less than 1
+//}
+
+pred validCandidate {
     // all TAs must have different StudentID numbers
     all disj ta1, ta2: TA | {
         ta1.StudentID > 0
@@ -94,7 +97,10 @@ pred validTAs {
     }
     // other conditions
 
+    //
 }
+
+
 
 // could change this to be if they are in a list of courses that TAs must be matched to then must be offered next semester
 pred availableCourses {
@@ -105,9 +111,47 @@ pred availableCourses {
 }
 
 
+pred init {
+    // no allocations yet
+    // nobody should have allocated flags as true and no one 
+    // 
+
+}
+
+pred overAllocated {
+    // A course should never have more TAs allocated than the number of spots available
+
+
+}
+
+
+
+
+// end state: Any course that is under allocated should not have TAs in their rankings that have allocated as false
+pred endState {
+
+
+}
+
+
+
+// Tas allocated to the course with the biggest defecit if they ranked it
+
+// only ranked to a course if there are still spots left
+
+// ta has been ranked to a course if either their first preference and not ranked anywhere else,
+
+// someone has ranked something 2 or 3, should only be put on that course if no one else on that course list preferred it as their first
+// their first preference, ranked elsewhere but enough people ranked higher than that person 
+pred validAllocation {
+
+}
 // pred allPassedOrFailed{
 //  // predicate that ensures that every student either has a pass or fail for the interview for every course 
 // }
+
+
+// run here
 
 
 
