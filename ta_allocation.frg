@@ -106,14 +106,14 @@ pred validCandidate {
     // the rankings of the candidate must be continuous from 1 - 4
     all cand: Candidate, course: Course | {
         // the ranking can only be between 1 and 4 (duplicates allowed)
-        some y: Int | {
+        all y: Int | {
             cand.Applications[course] = y implies {
                 y >= 1
                 y <= 4
             }
         }
         // the rankings must be linear
-        some z: Int | {
+        all z: Int | {
             // if the candidate has a course that is ranked above 1, there must be a course that is ranked better than it
             (cand.Applications[course] = z and z > 1) implies {
                 some c2: Course | {cand.Applications[c2] = subtract[z,1]}
