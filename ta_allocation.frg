@@ -11,36 +11,26 @@ abstract sig Boolean {}
 one sig True, False extends Boolean {}
 
 
-// sig AvailableCourses {}
-    // maybe have pfunc that maps from an int (in our case would be course ID) to a course
-    // 
-
-// maybe should do an:
-//
-// abstract sig Student {}
-// sig Ta extends Student {}
-// sig regularStudent extends Studnet {}
-
-// make this abstract if we want to go UTA and HTA route
+// sig that models a candidate
 sig Candidate {
     // ID to be able to reference each TA
     StudentID: one Int,
-    // pfunc to know what courses the TA applied to TA (maps course ID to ranking from the TA)
-    Applications: pfunc Int -> Int,
+    // pfunc to know what courses the TA applied to TA (maps course to ranking from the TA)
+    Applications: pfunc Course -> Int,
     // i9 form status of candidate (if they filled it out)
     i9Status: one Boolean,
     // if the candidate has been on academic probation
-    academicProbation: one Boolea,
+    academicProbation: one Boolean,
     // the total number of jobs the candidate currently has
     numJobs: one Int,
     // boolean of whether the TA has already been allocated
     CurrentlyAllocated: one Boolean,
-
-    CourseAllocatedTo: one Course
+    // the actual course the TA was allocated to
+    CourseAllocatedTo: lone Course
 }
 
         
-    
+// sig that models a Course
 sig Course {
     // int describing the max number of 
     MaxTAs: one Int,
@@ -52,31 +42,41 @@ sig Course {
     CandidateRankings: pfunc Int -> Int,
     // 
     CurrentlyAllocated: one Boolean,
-    // j
-    Allocations: pfunc 
 
+    // pfunc mapping from a candidate to a boolean 
+    Allocations: pfunc Candidate -> Boolean
 }
 
-------- possible preds 
-
+------------------------------------------------------------------------------------------------------------------------
 pred validCourses {
-    // predicate that narrows down the courses to those that are considered valid: ID > 0
-    all course: Course | {
+    /* 
+    Predicate that narrows down all courses to those that are valid courses
+    */
+    all disj course, course2: Course | {
         // all courses have and ID greater than 0
         course.CourseID > 0
-
-        all course2: Course | {
-            // two different courses must have a different ID
-            course != course2 implies {
-                course.courseID != course2.courseID
-
-            }
-        }
+        course2.CourseID > 0
+        // two different courses must have different IDs
+        course.courseID != course2.courseID
     }
 }
 
 
-// predicate to determine if a 
+pred availableCourses {
+    /* 
+    predicate that narrows down the courses to those that are available to be matched
+    */
+    all course: Course | {
+        // all the courses considered must be available the upcoming semester
+        course.OfferedNextSem = True
+    }
+    // should also be valid courses
+    validCourses
+
+}
+
+
+// predicate to determine if a candidate is el
 pred isElligible[c: Candidate]{
 
 }
@@ -90,36 +90,55 @@ pred isElligible[c: Candidate]{
 
 pred validCandidate {
     // all TAs must have different StudentID numbers
-    all disj ta1, ta2: TA | {
+    all disj cand1, cand2: Candidate | {
         ta1.StudentID > 0
         ta2.StudentID > 0
         ta1.StudentID != ta2.StudentID
     }
-    // other conditions
+
+    // the rankings of the candidate must be continuous
+
+
+    // must have ranked at least 1 and at most 4 courses
 
     //
 }
 
 
-
-// could change this to be if they are in a list of courses that TAs must be matched to then must be offered next semester
-pred availableCourses {
-    // predicate that narrows down the courses to those that are available next semester
-    all course: Course | {
-        course.OfferedNextSem = True
-    }
-}
-
-
 pred init {
-    // no allocations yet
-    // nobody should have allocated flags as true and no one 
+    /* 
+    Predicate representing the initial state of our model,
+    ensuring that no one is allocated yet and courses have no allocations
+    yet
+    */
+    
+    // no candidate should be allocated to a course
+    all candidate: Candidate | {
+        candidate.CurrentlyAllocated = False 
+        no candidate.CourseAllocatedTo
+    }
+
+    // the courses should have no current allocations
+    all course: Course, candidate: Candidate | {
+        // maybe some merit in making this equal to False instead of there being none
+        no course.Allocations[candidate]
+        course.CurrentlyAllocated = False
+
+    }
     // 
 
 }
 
 pred overAllocated {
     // A course should never have more TAs allocated than the number of spots available
+
+    /* 
+    Predicate that makes sure no courses become over allocated (too many TAs allocated to the class)
+    */
+    all course: Course | {
+        #{}
+
+    }
 
 
 }
@@ -149,6 +168,8 @@ pred validAllocation {
 // pred allPassedOrFailed{
 //  // predicate that ensures that every student either has a pass or fail for the interview for every course 
 // }
+
+
 
 
 // run here
