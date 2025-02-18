@@ -37,7 +37,7 @@ sig Course {
     // boolean whether the course is offered next semester
     OfferedNextSem: one Boolean,
     // pfunc mapping from students that applied to TA and how they rank the TA
-    CandidateRankings: pfunc Int -> Int,
+    CandidateRankings: pfunc Candidate -> Int,
     // pfunc mapping from a candidate to a boolean 
     Allocations: pfunc Candidate -> Boolean
 }
@@ -59,7 +59,7 @@ pred validCourses {
 
 pred availableCourses {
     /* 
-    predicate that narrows down the courses to those that are available to be matched
+    predicate that narrows down the courses to those that are available to be matched (should be valid and offered)
     */
     all course: Course | {
         // all the courses considered must be available the upcoming semester
@@ -84,22 +84,45 @@ pred isElligible[c: Candidate]{
 //}
 
 pred validCandidate {
-    // all TAs must have different StudentID numbers
+    /*
+    Predicate that narrows down to valid candidates 
+    */ 
+
+    // all candidates must have different StudentID numbers (maybe move to its own pred)
     all disj cand1, cand2: Candidate | {
         cand1.StudentID > 0
         cand2.StudentID > 0
         cand1.StudentID != cand2.StudentID
     }
 
-    // the rankings of the candidate must be continuous
+    all cand: Candidate | {
+        // the candidate must be elligible
+        isElligible[cand]
+        // must have ranked at least 1 and at most 4 courses 
+        #{course: Course | some y: Int | cand.Applications[course] = y} >= 1
+        #{course: Course | some y: Int | cand.Applications[course] = y} <=4
+    }
 
-
-    // must have ranked at least 1 and at most 4 courses
-
-    //
+    // the rankings of the candidate must be continuous from 1 - 4
+    all cand: Candidate, course: Course | {
+        // the ranking can only be between 1 and 4 (duplicates allowed)
+        some y: Int | {
+            cand.Applications[course] = y implies {
+                y >= 1
+                y <= 4
+            }
+        }
+        // the rankings must be linear
+        some z: Int | {
+            // if the candidate has a course that is ranked above 1, there must be a course that is ranked better than it
+            (cand.Applications[course] = z and z > 1) implies {
+                some c2: Course | {cand.Applications[c2] = subtract[z,1]}
+            }
+        }
+    }
 }
 
-
+// DONE
 pred init {
     /* 
     Predicate representing the initial state of our model,
@@ -122,6 +145,7 @@ pred init {
 
 }
 
+//
 pred overAllocated {
     // A course should never have more TAs allocated than the number of spots available
 
