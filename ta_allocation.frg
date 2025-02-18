@@ -83,6 +83,7 @@ pred isElligible[c: Candidate]{
 // a ta shoud not have applied to more than 4 and less than 1
 //}
 
+// DONE
 pred validCandidate {
     /*
     Predicate that narrows down to valid candidates 
@@ -146,18 +147,13 @@ pred init {
 }
 
 //
-pred overAllocated {
-    // A course should never have more TAs allocated than the number of spots available
-
+pred noOverAllocation {
     /* 
     Predicate that makes sure no courses become over allocated (too many TAs allocated to the class)
     */
     all course: Course | {
-        #{}
-
+        #{cand: Candidate | course.Allocations[cand] = True} <= course.MaxTAs
     }
-
-
 }
 
 
@@ -168,6 +164,12 @@ pred endState {
 
 
 }
+
+
+
+// possible pred for if a student is allocated to a course then it also reflects in the course
+
+
 
 
 
