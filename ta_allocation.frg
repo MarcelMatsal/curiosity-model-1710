@@ -146,7 +146,7 @@ pred init {
 
 }
 
-//
+// DONE
 pred noOverAllocation {
     /* 
     Predicate that makes sure no courses become over allocated (too many TAs allocated to the class)
@@ -158,11 +158,31 @@ pred noOverAllocation {
 
 
 
-
 // end state: Any course that is under allocated should not have TAs in their rankings that have allocated as false
 pred endState {
+    // having less allocated students that max means that no more students could fill the spot
+    // if not full number of TAs
+    all course: Course | {
+        #{cand: Candidate | course.Allocations[cand] = True} <= course.MaxTAs implies {
+            all cand: Candidate | {
+                // if the candidate was ranked by the course, then it must be the case that the candidate has a match
+                (some course.CandidateRankings[cand] and some cand.Applications[course]) implies some cand.CourseAllocatedTo
 
 
+                ----- THIS MIGHT BE GOOD OUTSIDE OF THE CONSTRAINT OF COURSE BEING UNDERALLOCATED
+                // can't be the case that some other candidate was not allocated, had it ranked, and was ranked higher than someone allocated
+                not ( 
+                    some cand2: Candidate | {
+                    no cand2.CourseAllocatedTo
+                    some course.CandidateRankings[cand2]
+                    // the candidate should have also applied to the course <- <- <- <- This wasn't a constraint but feel like should be 
+                    some cand2.Applications[course]
+                    cand.CourseAllocatedTo = course
+                    course.CandidateRankings[cand] < course.CandidateRankings[cand2]
+                })
+            }
+        }
+    }
 }
 
 

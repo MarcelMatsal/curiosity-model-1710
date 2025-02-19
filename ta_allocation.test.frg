@@ -352,6 +352,104 @@ test suite for noOverAllocation {
         OfferedNextSem =  `c1 -> `true   
         Allocations = `c1 -> `p1 -> `true + `c1 -> `p2 -> `true + `c1 -> `p3 -> `true
     }
-
-
 }
+
+
+
+test suite for endState {
+
+    // someone not matched to it and open slot but they are matched somewhere else
+    example basic_end_state is {endState} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 + `p2 + `p3
+        Course = `c1 + `c2
+        StudentID = `p1 -> 1 + `p2 -> 2 + `p3 -> 3
+        i9Status = `p1 -> `true + `p2 -> `true + `p3 -> `true
+        academicProbation = `p1 -> `false + `p2 -> `false + `p3 -> `false
+        Applications = `p1 -> `c1 -> 1 + `p2 -> `c1 -> 1 + `p3 -> `c1 -> 1
+        numJobs =  `p1 -> 0 + `p2 -> 1 + `p3 -> 1
+        MaxTAs = `c1 -> 3 +  `c2 -> 1
+        CourseID = `c1 -> 1 + `c2 -> 2
+        OfferedNextSem =  `c1 -> `true + `c2 -> `true
+        CandidateRankings = `c1 -> `p1 -> 1 + `c1 -> `p2 -> 2 + `c1 -> `p3 -> 3 + `c2 -> `p3 -> 1
+        Allocations = `c1 -> `p1 -> `true + `c1 -> `p2 -> `true + `c1 -> `p3 -> `false +  `c2 -> `p3 -> `true
+    }
+
+    // two candidates matched and filled max number of TAs
+    example end_state is {endState} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 + `p2 + `p3
+        Course = `c1
+        StudentID = `p1 -> 1 + `p2 -> 2 + `p3 -> 3
+        i9Status = `p1 -> `true + `p2 -> `true + `p3 -> `true
+        academicProbation = `p1 -> `false + `p2 -> `false + `p3 -> `false
+        Applications = `p1 -> `c1 -> 1 + `p2 -> `c1 -> 1 + `p3 -> `c1 -> 1
+        numJobs =  `p1 -> 0 + `p2 -> 1 + `p3 -> 1
+        MaxTAs = `c1 -> 2 
+        CourseID = `c1 -> 1 
+        OfferedNextSem =  `c1 -> `true 
+        CandidateRankings = `c1 -> `p1 -> 1 + `c1 -> `p2 -> 2 + `c1 -> `p3 -> 3
+        Allocations = `c1 -> `p1 -> `true + `c1 -> `p2 -> `true + `c1 -> `p3 -> `false
+    }
+
+    // candidate ranked by the course but not matched, however course is full
+    example end_state2 is {endState} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 + `p2 + `p3
+        Course = `c1
+        StudentID = `p1 -> 1 + `p2 -> 2 + `p3 -> 3
+        i9Status = `p1 -> `true + `p2 -> `true + `p3 -> `true
+        academicProbation = `p1 -> `false + `p2 -> `false + `p3 -> `false
+        Applications = `p1 -> `c1 -> 1 + `p2 -> `c1 -> 1 + `p3 -> `c1 -> 1
+        numJobs =  `p1 -> 0 + `p2 -> 1 + `p3 -> 1
+        MaxTAs = `c1 -> 1 
+        CourseID = `c1 -> 1 
+        OfferedNextSem =  `c1 -> `true 
+        CandidateRankings = `c1 -> `p1 -> 1 + `c1 -> `p2 -> 2 + `c1 -> `p3 -> 3
+        Allocations = `c1 -> `p1 -> `false + `c1 -> `p2 -> `true + `c1 -> `p3 -> `false
+    }
+    // candidate ranked by the course but not matched
+    example not_end_state is {not endState} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 + `p2 + `p3
+        Course = `c1 + `c2 + `c3 + `c4
+        StudentID = `p1 -> 1 + `p2 -> 2 + `p3 -> 3
+        i9Status = `p1 -> `true + `p2 -> `true + `p3 -> `true
+        academicProbation = `p1 -> `false + `p2 -> `false + `p3 -> `false
+        Applications = `p1 -> `c1 -> 1 + `p1 -> `c2 -> 2 + `p1 -> `c3 -> 3 + `p1 -> `c4 -> 4 + `p2 -> `c2 -> 1 + `p3 -> `c4 -> 1
+        numJobs =  `p1 -> 0 + `p2 -> 1 + `p3 -> 1
+        MaxTAs = `c1 -> 2 + `c2 -> 1 + `c3 -> 3 + `c4 -> 2
+        CourseID = `c1 -> 1 + `c2 -> 2 + `c3 -> 3 + `c4 -> 4
+        OfferedNextSem =  `c1 -> `true + `c2 -> `true + `c3 -> `true + `c4 -> `true
+        CandidateRankings = `c1 -> `p1 -> 1 + `c2 -> `p1 -> 2
+        Allocations = `c1 -> `p1 -> `false + `c2 -> `p1 -> `false + `c3 -> `p1 -> `false + `c4 -> `p1 -> `false
+    }
+    
+    // can't be the case that someone that was ranked higher than someone allocated to the class ended up not being allocated
+       example not_end_state2 is {not endState} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 + `p2 + `p3
+        Course = `c1 
+        StudentID = `p1 -> 1 + `p2 -> 2 + `p3 -> 3
+        i9Status = `p1 -> `true + `p2 -> `true + `p3 -> `true
+        academicProbation = `p1 -> `false + `p2 -> `false + `p3 -> `false
+        Applications = `p1 -> `c1 -> 1 + `p2 -> `c1 -> 1 + `p3 -> `c1 -> 1
+        numJobs =  `p1 -> 0 + `p2 -> 1 + `p3 -> 1
+        MaxTAs = `c1 -> 2 
+        CourseID = `c1 -> 1 
+        OfferedNextSem =  `c1 -> `true 
+        CandidateRankings = `c1 -> `p1 -> 1 + `c1 -> `p2 -> 2 + `c1 -> `p3 -> 3
+        Allocations = `c1 -> `p1 -> `false + `c1 -> `p2 -> `true + `c1 -> `p3 -> `false
+    }
+}
+
