@@ -105,7 +105,7 @@ pred isElligible[c: Candidate] {
     and
     c.academicProbation = False // No probation
     and
-    (c.isInternational implies c.numJobs < 2) // International students can only have 2 jobs (including the TA job)
+    (c.isInternational = True implies c.numJobs < 2) // International students can only have 2 jobs (including the TA job)
 }
 
 // verify that the rankings are continuous
@@ -171,10 +171,7 @@ pred init {
     all course: Course, candidate: Candidate | {
         // maybe some merit in making this equal to False instead of there being none
         course.Allocations[candidate] = False
-
     }
-    // 
-
 }
 
 // DONE
@@ -209,6 +206,13 @@ pred endState {
                     cand.CourseAllocatedTo = course
                     course.CandidateRankings[cand] < course.CandidateRankings[cand2]
                 })
+                and
+                course.Allocations[cand] = True implies {
+                    (course.CandidateRankings[cand] > 0 and cand.Applications[course] > 0)
+                    and
+                        // This course best matches the preferences of the TA.
+                        isBestPreference[cand, course]
+                    }
             }
         }
     }
@@ -253,26 +257,6 @@ pred roundedAllocation {
 // - only defer if another course is at a greater deficet
 // If ranked multiple coures, and lower pref is current course:
 // - only accept if in a deficiet and no other course is at a greater deficet
-
-/*
-* Predicate that confirms some candidate is the current top candidate who
-* has not yet been allocated to the given course.
-* 
-* In other words, there are no higher ranked candidates above them who haven't yet
-* been allocated to the course.
-*/
-pred isCurrentTopCandidate[s : Candidate, c : Course] {
-    (c.CandidateRankings[s] > 0 and no c.Allocations[s])
-    and
-    (all otherStudent : Candidate | {
-        otherStudent != s
-        and
-        // If higher (smaller number) ranked, they must already be allocated.
-        (c.CandidateRankings[otherStudent] < c.CandidateRankings[s]) implies {
-            c.Allocations[otherStudent] = True
-        }
-    })
-}
 
 /*
 * Predicate that determines if a given course is the highest ranked
@@ -338,21 +322,9 @@ pred isInDeficit[c : Course] {
 }
 
 /*
-* The predicate which makes a decision: do we allocate? Or defer now for later.
+* The predicate which makes a decision: have we given the TA the best we could?
 */
-pred allocateStudentToCourse[s : Candidate, c : Course] {
-    // This predicate determines if we allocate or defer the allocation.
-
-    // We first verify they are the top candidate for this course.
-    isCurrentTopCandidate[s, c]
-    and
-    // If the course is full, we do not allocate.
-    (not courseIsFull[c])
-    and
-    (no s.CourseAllocatedTo) // We haven't already given them away.
-    and
-    (not (no s.Applications[c])) // They actually ranked the course.
-    and
+pred isBestPreference[s : Candidate, c : Course] {
     // All the possible cases we would allocate them to c:
     (   
         // More basic cases - they have no other options!
@@ -372,15 +344,28 @@ pred allocateStudentToCourse[s : Candidate, c : Course] {
         }) // Tie
         or
         (all oCourse : Course | {
-            (oCourse != c and (s.Applications[oCourse] != s.Applications[c])) implies 
+            (oCourse != c and (s.Applications[oCourse] > s.Applications[c])) implies 
             // No deficit issues with course
             not (notBiggestDeficit[s, c])
         })
         )
         or
-        // Not highest ranking, only hired if in deficit, and the greatest one.
-        (isInDeficit[c] and not notBiggestDeficit[s, c])
+        (all oCourse : Course | {
+            (oCourse != c and (s.Applications[oCourse] < s.Applications[c])) implies 
+            // Not highest ranking, only hired if in deficit, and the greatest one.
+            (isInDeficit[c] and not notBiggestDeficit[s, c])
+        })
     )
 }
 
 // run here
+// run {
+//     availableCourses
+//     validCandidate
+//     noOverAllocation
+//     endState
+//     roundedAllocation
+//     all c : Course | {
+//         c.MaxTAs = 5
+//     }
+// } for exactly 2 Course, exactly 4 Candidate
