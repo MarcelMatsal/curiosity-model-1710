@@ -208,16 +208,16 @@ pred endState {
 * been allocated to the course.
 */
 pred isCurrentTopCandidate[s : Candidate, c : Course] {
-    (c.CandidateRankings[s] and no c.Allocations[s])
+    (c.CandidateRankings[s] > 0 and no c.Allocations[s])
     and
-    all otherStudent : Candidate | {
+    (all otherStudent : Candidate | {
         otherStudent != s
         and
         // If higher (smaller number) ranked, they must already be allocated.
         (c.CandidateRankings[otherStudent] < c.CandidateRankings[s]) implies {
             c.Allocations[otherStudent] = True
         }
-    }
+    })
 }
 
 /*
@@ -226,13 +226,13 @@ pred isCurrentTopCandidate[s : Candidate, c : Course] {
 */
 pred isBestOptionForStudent[s : Candidate, c : Course] {
     // Confirm they ranked the course:
-    s.Applications[c]
+    s.Applications[c] > 0 
     and
     // Confirm they didn't rank any higher courses:
     (   all otherCourse : Course | {
             otherCourse != c
             and
-            (s.Applications[otherCourse] implies {
+            (s.Applications[otherCourse] > 0 implies {
                 s.Applications[otherCourse] <= s.Applications[c] // Lower ranked.
                 or
                 // The other courses ranked higher are full, or they didn't rank the candidate.
@@ -247,7 +247,7 @@ pred isBestOptionForStudent[s : Candidate, c : Course] {
 */
 pred courseIsFull[c : Course] {
     // Predicate that determines if a course is full.
-    (#{all cands : Candidate | c.Allocations[cands]} >= c.MaxTAs)
+    #({cands: Candidate | c.Allocations[cands] = True}) >= c.MaxTAs
 }
 
 /*
@@ -257,18 +257,18 @@ pred courseIsFull[c : Course] {
 pred notBiggestDeficit[s : Candidate, c : Course] {
     // Predicate to verify a given course isn't the biggest deficited course for a
     // soon to be allocated student.
-    let cDeficit = (subtract[c.MaxTAs, #{all cands : Candidate | cands.Applications[c] and c.RankedStudents[cands]}]) | {
+    let cDeficit = (subtract[c.MaxTAs, #{cands : Candidate | cands.Applications[c] > 0 and c.CandidateRankings[cands] > 0}]) | {
         all otherCourse : Course | {
             (
                 // They actually applied to the course, and that course wants them.
                 otherCourse != c
                 and
-                otherCourse.RankedStudents[s]
+                otherCourse.CandidateRankings[s] > 0
                 and
-                s.Applications[otherCourse]
+                s.Applications[otherCourse] > 0
             ) implies {
                 // We compare the deficits.
-                let otherDeficit = (subtract[otherCourse.MaxTAs, #{all cands : Candidate | cands.Applications[otherCourse] and otherCourse.RankedStudents[cands]}]) | {
+                let otherDeficit = (subtract[otherCourse.MaxTAs, #{cands : Candidate | cands.Applications[otherCourse] > 0  and otherCourse.CandidateRankings[cands] > 0}]) | {
                     (otherDeficit > 0) and (otherDeficit > cDeficit)
                 }
             }
@@ -280,12 +280,15 @@ pred notBiggestDeficit[s : Candidate, c : Course] {
 * Pred that confirms a course has less applicants than needed TA spots.
 */
 pred isInDeficit[c : Course] {
-    (subtract[c.MaxTAs, #{all cands : Candidate | cands.Applications[c] and c.RankedStudents[cands]}]) > 0
+    (subtract[c.MaxTAs, #{cands : Candidate | cands.Applications[c] > 0 and c.CandidateRankings[cands] > 0}]) > 0
 }
 
+/*
+* The predicate which makes a decision: do we allocate? Or defer now for later.
+*/
 pred allocateStudentToCourse[s : Candidate, c : Course] {
     // This predicate determines if we allocate or defer the allocation.
-    
+
     // We first verify they are the top candidate for this course.
     isCurrentTopCandidate[s, c]
     and
@@ -305,7 +308,7 @@ pred allocateStudentToCourse[s : Candidate, c : Course] {
             or
             (no otherCourse.CandidateRankings[s]) // Candidate was unranked by every other class.
             or
-            (s.Applications[otherCourse] implies courseIsFull[otherCourse])) // Everywhere else is full.
+            (s.Applications[otherCourse] > 0 implies courseIsFull[otherCourse])) // Everywhere else is full.
         })
         or
         // Tie, and no higher ranking.
@@ -326,15 +329,4 @@ pred allocateStudentToCourse[s : Candidate, c : Course] {
     )
 }
 
-
-// pred allPassedOrFailed{
-//  // predicate that ensures that every student either has a pass or fail for the interview for every course 
-// }
-
-// run {}
-
-
 // run here
-
-
-
