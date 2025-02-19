@@ -45,7 +45,8 @@ sig Course {
 ------------------------------------------------------------------------------------------------------------------------
 pred validCourses {
     /* 
-    Predicate that narrows down all courses to those that are valid courses
+    Predicate that narrows down all courses to those that are valid courses (don't share ID with another course and
+    have rankings that are continuous and not repetitive)
     */
     all disj course, course2: Course | {
         // all courses have and ID greater than 0
@@ -54,9 +55,31 @@ pred validCourses {
         // two different courses must have different IDs
         course.CourseID != course2.CourseID
     }
+    // the rankings of the course must be continuous and > 0, furthermore, candidates can't be ranked the same
+    all cand: Candidate, course: Course | {
+        // the rankings must be greater than 0
+        all y: Int | {
+            course.CandidateRankings[cand] = y implies {
+                y > 0
+            }
+        }
+        // the rankings must be linear
+        all z: Int | {
+            // if the course has a cand that is ranked above 1, there must be a cand that is ranked better than it
+            (course.CandidateRankings[cand] = z and z > 1) implies {
+                some c2: Candidate | {course.CandidateRankings[c2] = subtract[z,1]}
+            }
+        }
+        // all candidates must have different rankings
+        all cand2: Candidate | {
+            (cand != cand2 and some course.CandidateRankings[cand2] and some course.CandidateRankings[cand]) implies {
+                course.CandidateRankings[cand2] != course.CandidateRankings[cand]
+            }
+        }
+    }
 }
 
-
+// DONE
 pred availableCourses {
     /* 
     predicate that narrows down the courses to those that are available to be matched (should be valid and offered)
@@ -67,7 +90,6 @@ pred availableCourses {
     }
     // should also be valid courses
     validCourses
-
 }
 
 
@@ -130,7 +152,6 @@ pred init {
     ensuring that no one is allocated yet and courses have no allocations
     yet
     */
-    
     // no candidate should be allocated to a course
     all candidate: Candidate | {
         no candidate.CourseAllocatedTo
@@ -157,7 +178,7 @@ pred noOverAllocation {
 }
 
 
-
+// DONE
 // end state: Any course that is under allocated should not have TAs in their rankings that have allocated as false
 pred endState {
     // having less allocated students that max means that no more students could fill the spot
@@ -167,8 +188,6 @@ pred endState {
             all cand: Candidate | {
                 // if the candidate was ranked by the course, then it must be the case that the candidate has a match
                 (some course.CandidateRankings[cand] and some cand.Applications[course]) implies some cand.CourseAllocatedTo
-
-
                 ----- THIS MIGHT BE GOOD OUTSIDE OF THE CONSTRAINT OF COURSE BEING UNDERALLOCATED
                 // can't be the case that some other candidate was not allocated, had it ranked, and was ranked higher than someone allocated
                 not ( 
@@ -186,10 +205,13 @@ pred endState {
 }
 
 
-
-// possible pred for if a student is allocated to a course then it also reflects in the course
-
-
+/* Predicate that ensures the allocations are rounded -> I.E. reflected on both the candidate and course */
+pred roundedAllocation {
+    // if a candidate gets allocated to the course it must be reflected on both the Candidate and the Course 
+    all cand: Candidate, course: Course | {
+        cand.CourseAllocatedTo = course iff course.Allocations[cand] = True
+    }
+}
 
 
 

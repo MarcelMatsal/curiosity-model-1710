@@ -62,6 +62,104 @@ test suite for init {
 }
 
 
+test suite for availableCourses {
+
+    assert validCourses is sat
+
+    example is_available is {availableCourses} for {
+            Boolean =  `true + `false
+            True = `true
+            False = `false
+            Candidate = `p1 + `p2 + `p3
+            StudentID = `p1 -> 1 + `p2 -> 2 + `p3 -> 3
+            i9Status = `p1 -> `true + `p2 -> `true + `p3 -> `true
+            academicProbation = `p1 -> `false + `p2 -> `false + `p3 -> `false
+            Course = `c1 + `c2
+            MaxTAs = `c1 -> 2 + `c2 -> 2
+            CourseID = `c1 -> 1 + `c2 -> 2
+            OfferedNextSem = `c1 -> `true +  `c2 -> `true
+            CandidateRankings = `c1 -> `p1 -> 1 + `c1 -> `p2 -> 2 + `c1 -> `p3 -> 3
+    }
+
+    // not all available next semester
+    example not_available is {not availableCourses} for {
+            Boolean =  `true + `false
+            True = `true
+            False = `false
+            Course = `c1 + `c2
+            MaxTAs = `c1 -> 2 + `c2 -> 2
+            CourseID = `c1 -> 1 + `c2 -> 2
+            OfferedNextSem = `c1 -> `true +  `c2 -> `false
+    }
+    
+    // some have the same ID
+    example not_available2 is {not availableCourses} for {
+            Boolean =  `true + `false
+            True = `true
+            False = `false
+            Course = `c1 + `c2
+            MaxTAs = `c1 -> 2 + `c2 -> 2
+            CourseID = `c1 -> 1 + `c2 -> 1
+            OfferedNextSem = `c1 -> `true +  `c2 -> `true
+    }
+
+    // not continuous rankings from the course
+    example not_available3 is {not availableCourses} for {
+            Boolean =  `true + `false
+            True = `true
+            False = `false
+            Candidate = `p1 + `p2 + `p3
+            StudentID = `p1 -> 1 + `p2 -> 2 + `p3 -> 3
+            i9Status = `p1 -> `true + `p2 -> `true + `p3 -> `true
+            academicProbation = `p1 -> `false + `p2 -> `false + `p3 -> `false
+            Course = `c1 + `c2
+            MaxTAs = `c1 -> 2 + `c2 -> 2
+            CourseID = `c1 -> 1 + `c2 -> 2
+            OfferedNextSem = `c1 -> `true +  `c2 -> `true
+            CandidateRankings = `c1 -> `p1 -> 1 + `c1 -> `p2 -> 3 + `c1 -> `p3 -> 4
+    }
+
+    // ranked two candidates the same
+    example not_available4 is {not availableCourses} for {
+            Boolean =  `true + `false
+            True = `true
+            False = `false
+            Candidate = `p1 + `p2 + `p3
+            StudentID = `p1 -> 1 + `p2 -> 2 + `p3 -> 3
+            i9Status = `p1 -> `true + `p2 -> `true + `p3 -> `true
+            academicProbation = `p1 -> `false + `p2 -> `false + `p3 -> `false
+            Course = `c1 + `c2
+            MaxTAs = `c1 -> 2 + `c2 -> 2
+            CourseID = `c1 -> 1 + `c2 -> 2
+            OfferedNextSem = `c1 -> `true +  `c2 -> `true
+            CandidateRankings = `c1 -> `p1 -> 1 + `c1 -> `p2 -> 2 + `c1 -> `p3 -> 2
+    }
+    // no 1 ranking
+    example not_available5 is {not availableCourses} for {
+            Boolean =  `true + `false
+            True = `true
+            False = `false
+            Candidate = `p1 + `p2 + `p3
+            StudentID = `p1 -> 1 + `p2 -> 2 + `p3 -> 3
+            i9Status = `p1 -> `true + `p2 -> `true + `p3 -> `true
+            academicProbation = `p1 -> `false + `p2 -> `false + `p3 -> `false
+            Course = `c1 + `c2
+            MaxTAs = `c1 -> 2 + `c2 -> 2
+            CourseID = `c1 -> 1 + `c2 -> 2
+            OfferedNextSem = `c1 -> `true +  `c2 -> `true
+            CandidateRankings = `c1 -> `p1 -> 2 + `c1 -> `p2 -> 3 + `c1 -> `p3 -> 4
+    }
+
+}
+
+
+
+
+
+
+
+
+
 test suite for validCandidate {
 
     // most basic candidate, has a basic ranking of preferences
