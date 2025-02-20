@@ -93,6 +93,7 @@ pred isElligible[c: Candidate] {
 // a ta shoud not have applied to more than 4 and less than 1
 //}
 
+// DONE
 pred validCandidate {
     /*
     Predicate that narrows down to valid candidates 
@@ -156,18 +157,13 @@ pred init {
 }
 
 //
-pred overAllocated {
-    // A course should never have more TAs allocated than the number of spots available
-
+pred noOverAllocation {
     /* 
     Predicate that makes sure no courses become over allocated (too many TAs allocated to the class)
     */
     all course: Course | {
-        #{}
-
+        #{cand: Candidate | course.Allocations[cand] = True} <= course.MaxTAs
     }
-
-
 }
 
 
@@ -180,20 +176,13 @@ pred endState {
 }
 
 
-// Confirms that an allocation of a student followed all rules:
-/*
-* We look at some course (C), and the highest unallocated student (S) for that course:
-* We only make a change if we are looking at the highest ranked course for S.
-* 1. If C is at MaxTAs, no change is made.
-* 2. If C is not at MaxTAs, then:
-*     a. If S ranked C AND S has no other rankings, then S is allocated to C.
-*     b. If S ranked C and S has not been ranked by other courses, then S is allocated to C.
-*     c. If S unsubmitted their rank for course C, no change is made.
-*     d. If S ranked C AND all other courses S ranked are full, then S is allocated to C. 
-*     e. If S ranked C = another course that is not full:
-*        -    If C has the greatest deficet (apps - maxTAs), S is allocated to C, otherwise, no change is made.
-*        -    If none of the equal ranked courses have a deficet, and C is not the highest number, no change is made.
-*/
+
+// possible pred for if a student is allocated to a course then it also reflects in the course
+
+
+
+
+
 // Tas allocated to the course with the biggest defecit if they ranked it
 
 // only ranked to a course if there are still spots left

@@ -278,3 +278,80 @@ test suite for validCandidate {
         Allocations = `c1 -> `p1 -> `false + `c2 -> `p1 -> `false + `c3 -> `p1 -> `false + `c4 -> `p1 -> `false
     }
 }
+
+
+test suite for noOverAllocation {
+
+    // most basic condition, no allocations
+    example no_over_allocation is {noOverAllocation} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 
+        Course = `c1
+        StudentID = `p1 -> 1
+        i9Status = `p1 -> `true
+        academicProbation = `p1 -> `false
+        //CourseAllocatedTo = `p1 -> `c1
+        numJobs =  `p1 -> 0
+        MaxTAs = `c1 -> 2
+        CourseID = `c1 -> 1
+        OfferedNextSem =  `c1 -> `true   
+        Allocations = `c1 -> `p1 -> `false
+    }
+    // less allocations than max
+    example no_over_allocation2 is {noOverAllocation} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 
+        Course = `c1
+        StudentID = `p1 -> 1
+        i9Status = `p1 -> `true
+        academicProbation = `p1 -> `false
+        //CourseAllocatedTo = `p1 -> `c1
+        numJobs =  `p1 -> 0
+        MaxTAs = `c1 -> 2
+        CourseID = `c1 -> 1
+        OfferedNextSem =  `c1 -> `true   
+        Allocations = `c1 -> `p1 -> `true
+    }
+
+    // same number of allocations as max
+    example no_over_allocation3 is {noOverAllocation} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 + `p2
+        Course = `c1
+        StudentID = `p1 -> 1 + `p2 -> 2
+        i9Status = `p1 -> `true + `p2 -> `true
+        academicProbation = `p1 -> `false + `p2 -> `false
+        //CourseAllocatedTo = `p1 -> `c1
+        numJobs =  `p1 -> 0 + `p2 -> 1
+        MaxTAs = `c1 -> 2
+        CourseID = `c1 -> 1
+        OfferedNextSem =  `c1 -> `true   
+        Allocations = `c1 -> `p1 -> `true + `c1 -> `p2 -> `true
+    }
+
+    // over allocation
+    example overallocated is {not noOverAllocation} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 + `p2 + `p3
+        Course = `c1
+        StudentID = `p1 -> 1 + `p2 -> 2 + `p3 -> 3
+        i9Status = `p1 -> `true + `p2 -> `true + `p3 -> `true
+        academicProbation = `p1 -> `false + `p2 -> `false + `p3 -> `true
+        //CourseAllocatedTo = `p1 -> `c1
+        numJobs =  `p1 -> 0 + `p2 -> 1 + `p3 -> 1
+        MaxTAs = `c1 -> 2
+        CourseID = `c1 -> 1
+        OfferedNextSem =  `c1 -> `true   
+        Allocations = `c1 -> `p1 -> `true + `c1 -> `p2 -> `true + `c1 -> `p3 -> `true
+    }
+
+
+}
