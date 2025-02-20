@@ -91,6 +91,16 @@ test suite for availableCourses {
     }
 }
 
+/*
+* Confirms a candidate has applied to the right number of courses (between 1 and 4).
+*/
+pred correctNumApplications {
+    all s : Candidate | {
+        #{course: Course | some y: Int | s.Applications[course] = y} >= 1
+        #{course: Course | some y: Int | s.Applications[course] = y} <= 4
+    }
+}
+
 test suite for validCandidate {
 
     // most basic candidate, has a basic ranking of preferences
@@ -306,6 +316,8 @@ test suite for validCandidate {
         OfferedNextSem =  `c1 -> `true + `c2 -> `true + `c3 -> `true + `c4 -> `true
         Allocations = `c1 -> `p1 -> `false + `c2 -> `p1 -> `false + `c3 -> `p1 -> `false + `c4 -> `p1 -> `false
     }
+
+    assert correctNumApplications is necessary for validCandidate for 5 Candidate
 }
 
 
@@ -404,6 +416,42 @@ test suite for endState {
         OfferedNextSem =  `c1 -> `true + `c2 -> `true
         CandidateRankings = `c1 -> `p1 -> 1 + `c1 -> `p2 -> 2 + `c1 -> `p3 -> 3 + `c2 -> `p3 -> 1
         Allocations = `c1 -> `p1 -> `true + `c1 -> `p2 -> `true + `c1 -> `p3 -> `false +  `c2 -> `p3 -> `true
+    }
+    // A student can't be allocated to a course they didn't apply to
+    example misranked_end_state is {not endState} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 + `p2
+        Course = `c1
+        StudentID = `p1 -> 1 + `p2 -> 2
+        i9Status = `p1 -> `true + `p2 -> `true 
+        academicProbation = `p1 -> `false + `p2 -> `false
+        Applications = `p1 -> `c1 -> 1
+        numJobs =  `p1 -> 0 + `p2 -> 1
+        MaxTAs = `c1 -> 2
+        CourseID = `c1 -> 1
+        OfferedNextSem =  `c1 -> `true
+        CandidateRankings = `c1 -> `p1 -> 1 + `c1 -> `p2 -> 2
+        Allocations = `c1 -> `p1 -> `true + `c1 -> `p2 -> `true
+    }
+    // Even if underallocated, can't allocate a student who was unranked.
+    example notranked_end_state is {not endState} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 + `p2
+        Course = `c1
+        StudentID = `p1 -> 1 + `p2 -> 2
+        i9Status = `p1 -> `true + `p2 -> `true 
+        academicProbation = `p1 -> `false + `p2 -> `false
+        Applications = `p1 -> `c1 -> 1 + `p2 -> `c1 -> 1
+        numJobs =  `p1 -> 0 + `p2 -> 1
+        MaxTAs = `c1 -> 2
+        CourseID = `c1 -> 1
+        OfferedNextSem =  `c1 -> `true
+        CandidateRankings = `c1 -> `p1 -> 1
+        Allocations = `c1 -> `p1 -> `true + `c1 -> `p2 -> `true
     }
 
     // two candidates matched and filled max number of TAs
@@ -516,7 +564,6 @@ test suite for endState {
         CandidateRankings = `c1 -> `p1 -> 1 + `c1 -> `p2 -> 2 + `c1 -> `p3 -> 3
         Allocations = `c1 -> `p1 -> `true + `c1 -> `p2 -> `true + `c1 -> `p3 -> `true
     }
-
     // Against prefs to fill
     example basic_against_prefs_end_state is {endState} for {
         Boolean =  `true + `false
@@ -604,6 +651,89 @@ test suite for courseIsFull {
                 and
                 courseIsFull[c]
             }
+        } is unsat
+    }
+}
+
+test suite for isElligible {
+    test expect {
+        // Perfectly eligible student.
+        goodStudent: {
+            some s : Candidate | {
+                s.i9Status = True and
+                s.academicProbation = False and
+                s.isInternational = True and
+                s.numJobs = 1
+                isElligible[s]
+            }
+        } is sat
+        // Is on academic probation.
+        badStudent: {
+            some s : Candidate | {
+                s.i9Status = True and
+                s.academicProbation = True and
+                s.isInternational = True and
+                s.numJobs = 1
+                isElligible[s]
+            }
+        } is unsat
+        noINine: {
+            some s : Candidate | {
+                s.i9Status = False and
+                s.academicProbation = False and
+                s.isInternational = True and
+                s.numJobs = 1
+                isElligible[s]
+            }
+        } is unsat
+        // More than 2 jobs but isn't international
+        lotsOfJobs : {
+            some s : Candidate | {
+                s.i9Status = True and
+                s.academicProbation = False and
+                s.isInternational = False and
+                s.numJobs = 6
+                isElligible[s]
+            }
+        } is sat
+        // Too many jobs for international
+        tooManyJobsInter: {
+            some s : Candidate | {
+                s.i9Status = True and
+                s.academicProbation = True and
+                s.isInternational = True and
+                s.numJobs = 7
+                isElligible[s]
+            }
+        } is unsat
+    }
+}
+
+test suite for noWaitlistOnNeededCourse {
+    test expect {
+        // A fully allocated course.
+        waitlistButFull: {
+            one c : Course | {
+                courseIsFull[c] and (
+                    some s : Candidate | {
+                    c.CandidateRankings[s] = 4
+                    s.Applications[c] = 1
+                    no s.CourseAllocatedTo
+                })
+            }
+            and noWaitlistOnNeededCourse
+        } is sat
+        // If a course has room, and there is a waitlist, that's wrong!
+        waitlistButRoom : {
+            one c : Course | {
+                not courseIsFull[c] and (
+                    some s : Candidate | {
+                    c.CandidateRankings[s] = 4
+                    s.Applications[c] = 1
+                    no s.CourseAllocatedTo
+                })
+            }
+            and noWaitlistOnNeededCourse
         } is unsat
     }
 }
