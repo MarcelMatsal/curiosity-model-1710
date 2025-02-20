@@ -573,3 +573,38 @@ test suite for endState {
     }
 }
 
+test suite for courseIsFull {
+    test expect {
+        // A fully allocated course.
+        fullCourse: {
+            some c : Course | {
+                c.MaxTAs = 2 and (
+                    some s1, s2 : Candidate | {
+                        s1 != s2 and
+                        c.Allocations[s1] = True and c.Allocations[s2] = True
+                    }
+                )
+                and
+                courseIsFull[c]
+            }
+        } is sat
+        // A course that still has room.
+        roomCourse : {
+            some c : Course | {
+                c.MaxTAs = 5 and (
+                    some s1, s2 : Candidate | {
+                        s1 != s2 and
+                        c.Allocations[s1] = True and c.Allocations[s2] = True
+                        and (all s : Candidate | {
+                            s != s1 and s != s2 and
+                            c.Allocations[s] = False or no c.Allocations[s]
+                        })
+                    }
+                )
+                and
+                courseIsFull[c]
+            }
+        } is unsat
+    }
+}
+
