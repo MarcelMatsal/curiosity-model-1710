@@ -248,10 +248,10 @@ pred isBestSpotFor[s : Candidate, c : Course] {
         (otherCourse != c and s.Applications[otherCourse] > 0 and otherCourse.CandidateRankings[s] > 0) implies {
             (s.Applications[otherCourse] < s.Applications[c] implies (
                 // Othercourse needed s more.
-                courseNeededMore[otherCourse, s, c]
+                courseNeededMore[c, s, otherCourse]
             )) 
             or
-            (s.Applications[otherCourse] = s.Applications[c] and otherCourse.CourseID < c.CourseID) 
+            (s.Applications[otherCourse] = s.Applications[c] and (otherCourse.CourseID < c.CourseID or  courseNeededMore[c, s, otherCourse]))
             or
             courseIsFull[otherCourse]
         }
