@@ -2,66 +2,6 @@
 
 open "ta_allocation.frg"
 
-// write the tests here for our model
-
-
-
-test suite for init {
-
-    // most basic condition, 1 cand and 1 course where no one is matched to anything
-    example basicCondition is {init} for {
-        Boolean =  `true + `false
-        True = `true
-        False = `false
-        Candidate = `p1 
-        Course = `c1
-        StudentID = `p1 -> 1
-        i9Status = `p1 -> `true
-        academicProbation = `p1 -> `false
-        //CourseAllocatedTo = `p1 -> `c1
-        numJobs =  `p1 -> 0
-        MaxTAs = `c1 -> 2
-        CourseID = `c1 -> 1
-        OfferedNextSem =  `c1 -> `true   
-        Allocations = `c1 -> `p1 -> `false
-    }
-
-    // case a candidate is allocated already
-    example candIsAllocated is {not init} for {
-        Boolean =  `true + `false
-        True = `true
-        False = `false
-        Candidate = `p1 
-        Course = `c1
-        StudentID = `p1 -> 1
-        i9Status = `p1 -> `true
-        academicProbation = `p1 -> `false
-        numJobs =  `p1 -> 0
-        CourseAllocatedTo = `p1 -> `c1
-        MaxTAs = `c1 -> 2
-        CourseID = `c1 -> 1
-        OfferedNextSem =  `c1 -> `true     
-    }
-
-    // case a course is allocated already
-    example courseIsAllocated is {not init} for {
-        Boolean =  `true + `false
-        True = `true
-        False = `false
-        Candidate = `p1 
-        Course = `c1
-        StudentID = `p1 -> 1
-        i9Status = `p1 -> `true
-        academicProbation = `p1 -> `false
-        numJobs =  `p1 -> 0
-        MaxTAs = `c1 -> 2
-        CourseID = `c1 -> 1
-        OfferedNextSem =  `c1 -> `true     
-        Allocations = `c1 -> `p1 -> `false
-    }
-}
-
-
 test suite for availableCourses {
 
     assert validCourses is sat
@@ -149,16 +89,7 @@ test suite for availableCourses {
             OfferedNextSem = `c1 -> `true +  `c2 -> `true
             CandidateRankings = `c1 -> `p1 -> 2 + `c1 -> `p2 -> 3 + `c1 -> `p3 -> 4
     }
-
 }
-
-
-
-
-
-
-
-
 
 test suite for validCandidate {
 
@@ -252,9 +183,8 @@ test suite for validCandidate {
         Allocations = `c1 -> `p1 -> `false + `c2 -> `p1 -> `false + `c3 -> `p1 -> `false + `c4 -> `p1 -> `false
     }
 
-
     // case did not rank any course
-    example invalid_candidate is {not validCandidate} for {
+        example invalid_candidate is {not validCandidate} for {
         Boolean =  `true + `false
         True = `true
         False = `false
@@ -269,6 +199,7 @@ test suite for validCandidate {
         OfferedNextSem =  `c1 -> `true + `c2 -> `true + `c3 -> `true + `c4 -> `true
         Allocations = `c1 -> `p1 -> `false + `c2 -> `p1 -> `false + `c3 -> `p1 -> `false + `c4 -> `p1 -> `false
     }
+
     // case ranked too many courses
     example invalid_candidate2 is {not validCandidate} for {
         Boolean =  `true + `false
@@ -466,9 +397,9 @@ test suite for endState {
         StudentID = `p1 -> 1 + `p2 -> 2 + `p3 -> 3
         i9Status = `p1 -> `true + `p2 -> `true + `p3 -> `true
         academicProbation = `p1 -> `false + `p2 -> `false + `p3 -> `false
-        Applications = `p1 -> `c1 -> 1 + `p2 -> `c1 -> 1 + `p3 -> `c1 -> 1
+        Applications = `p1 -> `c1 -> 1 + `p2 -> `c1 -> 1 + `p3 -> `c1 -> 1 + `p3 -> `c2 -> 2
         numJobs =  `p1 -> 0 + `p2 -> 1 + `p3 -> 1
-        MaxTAs = `c1 -> 3 +  `c2 -> 1
+        MaxTAs = `c1 -> 2 +  `c2 -> 1
         CourseID = `c1 -> 1 + `c2 -> 2
         OfferedNextSem =  `c1 -> `true + `c2 -> `true
         CandidateRankings = `c1 -> `p1 -> 1 + `c1 -> `p2 -> 2 + `c1 -> `p3 -> 3 + `c2 -> `p3 -> 1
@@ -548,6 +479,97 @@ test suite for endState {
         OfferedNextSem =  `c1 -> `true 
         CandidateRankings = `c1 -> `p1 -> 1 + `c1 -> `p2 -> 2 + `c1 -> `p3 -> 3
         Allocations = `c1 -> `p1 -> `false + `c1 -> `p2 -> `true + `c1 -> `p3 -> `false
+    }
+    // If a course isn't full, there should not be a waitlist for it.
+    example not_end_state_full is {not endState} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 + `p2 + `p3
+        Course = `c1 
+        StudentID = `p1 -> 1 + `p2 -> 2 + `p3 -> 3
+        i9Status = `p1 -> `true + `p2 -> `true + `p3 -> `true
+        academicProbation = `p1 -> `false + `p2 -> `false + `p3 -> `false
+        Applications = `p1 -> `c1 -> 1 + `p2 -> `c1 -> 1 + `p3 -> `c1 -> 1
+        numJobs =  `p1 -> 0 + `p2 -> 1 + `p3 -> 1
+        MaxTAs = `c1 -> 3
+        CourseID = `c1 -> 1 
+        OfferedNextSem =  `c1 -> `true 
+        CandidateRankings = `c1 -> `p1 -> 1 + `c1 -> `p2 -> 2 + `c1 -> `p3 -> 3
+        Allocations = `c1 -> `p1 -> `true + `c1 -> `p2 -> `true + `c1 -> `p3 -> `false
+    }
+    // Basic singular allocation.
+    example end_state_all_alloc is {endState} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 + `p2 + `p3
+        Course = `c1 
+        StudentID = `p1 -> 1 + `p2 -> 2 + `p3 -> 3
+        i9Status = `p1 -> `true + `p2 -> `true + `p3 -> `true
+        academicProbation = `p1 -> `false + `p2 -> `false + `p3 -> `false
+        Applications = `p1 -> `c1 -> 1 + `p2 -> `c1 -> 1 + `p3 -> `c1 -> 1
+        numJobs =  `p1 -> 0 + `p2 -> 1 + `p3 -> 1
+        MaxTAs = `c1 -> 3
+        CourseID = `c1 -> 1 
+        OfferedNextSem =  `c1 -> `true 
+        CandidateRankings = `c1 -> `p1 -> 1 + `c1 -> `p2 -> 2 + `c1 -> `p3 -> 3
+        Allocations = `c1 -> `p1 -> `true + `c1 -> `p2 -> `true + `c1 -> `p3 -> `true
+    }
+
+    // Against prefs to fill
+    example basic_against_prefs_end_state is {endState} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 + `p2 + `p3
+        Course = `c1 + `c2
+        StudentID = `p1 -> 1 + `p2 -> 2 + `p3 -> 3
+        i9Status = `p1 -> `true + `p2 -> `true + `p3 -> `true
+        academicProbation = `p1 -> `false + `p2 -> `false + `p3 -> `false
+        Applications = `p1 -> `c1 -> 1 + `p2 -> `c1 -> 1 + `p3 -> `c1 -> 1 + `p3 -> `c2 -> 2
+        numJobs =  `p1 -> 0 + `p2 -> 1 + `p3 -> 1
+        MaxTAs = `c1 -> 2 +  `c2 -> 1
+        CourseID = `c1 -> 1 + `c2 -> 2
+        OfferedNextSem =  `c1 -> `true + `c2 -> `true
+        CandidateRankings = `c1 -> `p1 -> 1 + `c1 -> `p2 -> 3 + `c1 -> `p3 -> 2 + `c2 -> `p3 -> 1
+        Allocations = `c1 -> `p1 -> `true + `c1 -> `p2 -> `true + `c1 -> `p3 -> `false +  `c2 -> `p3 -> `true
+    }
+    // MUST be pulled against prefs
+    example neg_basic_against_prefs_end_state is {not endState} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 + `p2 + `p3
+        Course = `c1 + `c2
+        StudentID = `p1 -> 1 + `p2 -> 2 + `p3 -> 3
+        i9Status = `p1 -> `true + `p2 -> `true + `p3 -> `true
+        academicProbation = `p1 -> `false + `p2 -> `false + `p3 -> `false
+        Applications = `p1 -> `c1 -> 1 + `p2 -> `c1 -> 1 + `p3 -> `c1 -> 1 + `p3 -> `c2 -> 2
+        numJobs =  `p1 -> 0 + `p2 -> 1 + `p3 -> 1
+        MaxTAs = `c1 -> 2 +  `c2 -> 1
+        CourseID = `c1 -> 1 + `c2 -> 2
+        OfferedNextSem =  `c1 -> `true + `c2 -> `true
+        CandidateRankings = `c1 -> `p1 -> 1 + `c1 -> `p2 -> 3 + `c1 -> `p3 -> 2 + `c2 -> `p3 -> 1
+        Allocations = `c1 -> `p1 -> `true + `c1 -> `p2 -> `false + `c1 -> `p3 -> `true +  `c2 -> `p3 -> `false
+    }
+    // Tie breaking
+    example neg_break_tie is {not endState} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1
+        Course = `c1 + `c2
+        StudentID = `p1 -> 1
+        i9Status = `p1 -> `true
+        academicProbation = `p1 -> `false
+        Applications = `p1 -> `c1 -> 1 + `p1 -> `c2 -> 1 // Tie
+        numJobs =  `p1 -> 0
+        MaxTAs = `c1 -> 1 +  `c2 -> 1
+        CourseID = `c1 -> 1 + `c2 -> 2
+        OfferedNextSem =  `c1 -> `true + `c2 -> `true
+        CandidateRankings = `c1 -> `p1 -> 1 + `c2 -> `p1 -> 1
+        Allocations = `c1 -> `p1 -> `true + `c2 -> `p1 -> `false
     }
 }
 

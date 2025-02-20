@@ -78,6 +78,11 @@ pred validCourses {
                 course.CandidateRankings[cand2] != course.CandidateRankings[cand]
             }
         }
+
+        // A ranked candidate had to have applied.
+        some course.CandidateRankings[cand] implies {
+            some cand.Applications[course]
+        }
     }
 }
 
@@ -156,25 +161,6 @@ pred validCandidate {
 }
 
 // DONE
-pred init {
-    /* 
-    Predicate representing the initial state of our model,
-    ensuring that no one is allocated yet and courses have no allocations
-    yet
-    */
-    // no candidate should be allocated to a course
-    all candidate: Candidate | {
-        no candidate.CourseAllocatedTo
-    }
-
-    // the courses should have no current allocations
-    all course: Course, candidate: Candidate | {
-        // maybe some merit in making this equal to False instead of there being none
-        course.Allocations[candidate] = False
-    }
-}
-
-// DONE
 pred noOverAllocation {
     /* 
     Predicate that makes sure no courses become over allocated (too many TAs allocated to the class)
@@ -211,8 +197,24 @@ pred endState {
                     (course.CandidateRankings[cand] > 0 and cand.Applications[course] > 0)
                     and
                         // This course best matches the preferences of the TA.
-                        isBestPreference[cand, course]
+                        isBestSpotFor[cand, course]
                     }
+            }
+        }
+    }
+
+    // If a candidate wasn't hired - why?
+    and noWaitlistOnNeededCourse
+}
+
+/*
+* Makes sure there aren't waitlists on courses that are underallocated.
+*/
+pred noWaitlistOnNeededCourse {
+    all cand : Candidate | {
+        no cand.CourseAllocatedTo implies {
+            all course : Course | {
+                courseIsFull[course] or no course.CandidateRankings[cand] or no cand.Applications[course]
             }
         }
     }
@@ -227,57 +229,34 @@ pred roundedAllocation {
     }
 }
 
-
-// Confirms that an allocation of a student followed all rules:
-/*
-* We look at some course (C), and the highest unallocated student (S) for that course:
-* We only make a change if we are looking at the highest ranked course for S.
-* 1. If C is at MaxTAs, no change is made.
-* 2. If C is not at MaxTAs, then:
-*     a. If S ranked C AND S has no other rankings, then S is allocated to C.
-*     b. If S ranked C and S has not been ranked by other courses, then S is allocated to C.
-*     c. If S unsubmitted their rank for course C, no change is made.
-*     d. If S ranked C AND all other courses S ranked are full, then S is allocated to C. 
-*     e. If S ranked C = another course that is not full:
-*        -    If C has the greatest deficet (apps - maxTAs), S is allocated to C, otherwise, no change is made.
-*        -    If none of the equal ranked courses have a deficet, and C is not the highest number, no change is made.
-*/
-// Tas allocated to the course with the biggest defecit if they ranked it
-
-// only ranked to a course if there are still spots left
-
-// ta has been ranked to a course if either their first preference and not ranked anywhere else,
-
-// someone has ranked something 2 or 3, should only be put on that course if no one else on that course list preferred it as their first
-// their first preference, ranked elsewhere but enough people ranked higher than that person 
-
-
-// If tie, we move to upper level course (no action if lower number course)
-// If ranked multiple courses, and highest pref is current course:
-// - only defer if another course is at a greater deficet
-// If ranked multiple coures, and lower pref is current course:
-// - only accept if in a deficiet and no other course is at a greater deficet
-
-/*
-* Predicate that determines if a given course is the highest ranked
-* (or tied for highest rank) course that student wants. (And, can actually get).
-*/
-pred isBestOptionForStudent[s : Candidate, c : Course] {
-    // Confirm they ranked the course:
-    s.Applications[c] > 0 
-    and
-    // Confirm they didn't rank any higher courses:
-    (   all otherCourse : Course | {
-            otherCourse != c
-            and
-            (s.Applications[otherCourse] > 0 implies {
-                s.Applications[otherCourse] <= s.Applications[c] // Lower ranked.
-                or
-                // The other courses ranked higher are full, or they didn't rank the candidate.
-                (s.Applications[otherCourse] > s.Applications[c] and (courseIsFull[otherCourse] or no otherCourse.CandidateRankings[s]))
-            })
+pred isBestSpotFor[s : Candidate, c : Course] {
+    // A candidate only went to a lower rated course if:
+    // 1. They had tying prefs, and went to higher level course.
+    // 2. The course had exactly MaxTAs applicants or less.
+    all otherCourse : Course | {
+        (otherCourse != c and s.Applications[otherCourse] > 0 and otherCourse.CandidateRankings[s] > 0) implies {
+            (s.Applications[otherCourse] < s.Applications[c] implies (
+                // Othercourse needed s more.
+                courseNeededMore[otherCourse, s, c]
+            )) 
+            or
+            (s.Applications[otherCourse] = s.Applications[c] and otherCourse.CourseID < c.CourseID) 
+            or
+            courseIsFull[otherCourse]
         }
-    )
+    }
+}
+
+/*
+* Affirm a course needed a TA more than another.
+*/ 
+pred courseNeededMore[inNeedCourse : Course, student : Candidate, prefCourse : Course] {
+    // The course needed the student more than the other course.
+    let inNeedDeficit = (subtract[inNeedCourse.MaxTAs, #{cands : Candidate | cands.Applications[inNeedCourse] > 0 and inNeedCourse.CandidateRankings[cands] > 0}]) | {
+        let prefDeficit = (subtract[prefCourse.MaxTAs, #{cands : Candidate | cands.Applications[prefCourse] > 0 and prefCourse.CandidateRankings[cands] > 0}]) | {
+            (inNeedDeficit > 0) and (inNeedDeficit > prefDeficit)
+        }
+    }
 }
 
 /*
@@ -288,84 +267,14 @@ pred courseIsFull[c : Course] {
     #({cands: Candidate | c.Allocations[cands] = True}) >= c.MaxTAs
 }
 
-/*
-* Predicate to verify a given course isn't the biggest deficited course for a
-* soon to be allocated student.
-*/
-pred notBiggestDeficit[s : Candidate, c : Course] {
-    // Predicate to verify a given course isn't the biggest deficited course for a
-    // soon to be allocated student.
-    let cDeficit = (subtract[c.MaxTAs, #{cands : Candidate | cands.Applications[c] > 0 and c.CandidateRankings[cands] > 0}]) | {
-        all otherCourse : Course | {
-            (
-                // They actually applied to the course, and that course wants them.
-                otherCourse != c
-                and
-                otherCourse.CandidateRankings[s] > 0
-                and
-                s.Applications[otherCourse] > 0
-            ) implies {
-                // We compare the deficits.
-                let otherDeficit = (subtract[otherCourse.MaxTAs, #{cands : Candidate | cands.Applications[otherCourse] > 0  and otherCourse.CandidateRankings[cands] > 0}]) | {
-                    (otherDeficit > 0) and (otherDeficit > cDeficit)
-                }
-            }
-        }
-    }
-}
-
-/*
-* Pred that confirms a course has less applicants than needed TA spots.
-*/
-pred isInDeficit[c : Course] {
-    (subtract[c.MaxTAs, #{cands : Candidate | cands.Applications[c] > 0 and c.CandidateRankings[cands] > 0}]) > 0
-}
-
-/*
-* The predicate which makes a decision: have we given the TA the best we could?
-*/
-pred isBestPreference[s : Candidate, c : Course] {
-    // All the possible cases we would allocate them to c:
-    (   
-        // More basic cases - they have no other options!
-        (all otherCourse : Course | {
-            otherCourse != c and
-            ((no s.Applications[otherCourse]) // They applied nowhere else
-            or
-            (no otherCourse.CandidateRankings[s]) // Candidate was unranked by every other class.
-            or
-            (s.Applications[otherCourse] > 0 implies courseIsFull[otherCourse])) // Everywhere else is full.
-        })
-        or
-        // Tie, and no higher ranking.
-        (isBestOptionForStudent[s, c] implies
-        (some oCourse : Course | {
-            oCourse != c and (s.Applications[oCourse] = s.Applications[c]) and (oCourse.CourseID < c.CourseID)
-        }) // Tie
-        or
-        (all oCourse : Course | {
-            (oCourse != c and (s.Applications[oCourse] > s.Applications[c])) implies 
-            // No deficit issues with course
-            not (notBiggestDeficit[s, c])
-        })
-        )
-        or
-        (all oCourse : Course | {
-            (oCourse != c and (s.Applications[oCourse] < s.Applications[c])) implies 
-            // Not highest ranking, only hired if in deficit, and the greatest one.
-            (isInDeficit[c] and not notBiggestDeficit[s, c])
-        })
-    )
-}
-
 // run here
-// run {
-//     availableCourses
-//     validCandidate
-//     noOverAllocation
-//     endState
-//     roundedAllocation
-//     all c : Course | {
-//         c.MaxTAs = 5
-//     }
-// } for exactly 2 Course, exactly 4 Candidate
+run {
+    availableCourses
+    validCandidate
+    noOverAllocation
+    endState
+    roundedAllocation
+    all c : Course | {
+        c.MaxTAs = 5
+    }
+} for exactly 2 Course, exactly 6 Candidate
