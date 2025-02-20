@@ -573,3 +573,150 @@ test suite for endState {
     }
 }
 
+
+test suite for noWaitlistOnNeededCourse{ 
+
+    // basic case not matched but all courses full
+    example no_waitlist is {noWaitlistOnNeededCourse} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 + `p2 + `p3
+        Course = `c1
+        StudentID = `p1 -> 1 + `p2 -> 2 + `p3 -> 3
+        CourseAllocatedTo = `p2 -> `c1 + `p3 -> `c1
+        i9Status = `p1 -> `true + `p2 -> `true + `p3 -> `true
+        academicProbation = `p1 -> `false + `p2 -> `false + `p3 -> `false
+        Applications = `p1 -> `c1 -> 1 + `p2 -> `c1 -> 1 + `p3 -> `c1 -> 1
+        numJobs =  `p1 -> 0 + `p2 -> 1 + `p3 -> 1
+        MaxTAs = `c1 -> 2 
+        CourseID = `c1 -> 1 
+        OfferedNextSem =  `c1 -> `true 
+        CandidateRankings = `c1 -> `p1 -> 3 + `c1 -> `p2 -> 2 + `c1 -> `p3 -> 1
+        Allocations = `c1 -> `p1 -> `false + `c1 -> `p2 -> `true + `c1 -> `p3 -> `true
+    }
+
+    // basic case not matched but did not apply to course
+    example no_waitlist2 is {noWaitlistOnNeededCourse} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 + `p2 + `p3
+        Course = `c1
+        StudentID = `p1 -> 1 + `p2 -> 2 + `p3 -> 3
+        CourseAllocatedTo = `p2 -> `c1 + `p3 -> `c1
+        i9Status = `p1 -> `true + `p2 -> `true + `p3 -> `true
+        academicProbation = `p1 -> `false + `p2 -> `false + `p3 -> `false
+        Applications =  `p2 -> `c1 -> 1 + `p3 -> `c1 -> 1
+        numJobs =  `p1 -> 0 + `p2 -> 1 + `p3 -> 1
+        MaxTAs = `c1 -> 3 
+        CourseID = `c1 -> 1 
+        OfferedNextSem =  `c1 -> `true 
+        CandidateRankings = `c1 -> `p1 -> 3 + `c1 -> `p2 -> 2 + `c1 -> `p3 -> 1
+        Allocations = `c1 -> `p1 -> `false + `c1 -> `p2 -> `true + `c1 -> `p3 -> `true
+    }
+
+    // basic case not matched but course did not rank the student
+    example no_waitlist3 is {noWaitlistOnNeededCourse} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 + `p2 + `p3
+        Course = `c1
+        StudentID = `p1 -> 1 + `p2 -> 2 + `p3 -> 3
+        CourseAllocatedTo = `p2 -> `c1 + `p3 -> `c1
+        i9Status = `p1 -> `true + `p2 -> `true + `p3 -> `true
+        academicProbation = `p1 -> `false + `p2 -> `false + `p3 -> `false
+        Applications = `p1 -> `c1 -> 1 + `p2 -> `c1 -> 1 + `p3 -> `c1 -> 1
+        numJobs =  `p1 -> 0 + `p2 -> 1 + `p3 -> 1
+        MaxTAs = `c1 -> 4 
+        CourseID = `c1 -> 1 
+        OfferedNextSem =  `c1 -> `true 
+        CandidateRankings =  `c1 -> `p2 -> 2 + `c1 -> `p3 -> 1
+        Allocations = `c1 -> `p1 -> `false + `c1 -> `p2 -> `true + `c1 -> `p3 -> `true
+    }
+
+    // negative case where non of the conditions are met
+    example not_no_waitlist is {not noWaitlistOnNeededCourse} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 + `p2 + `p3
+        Course = `c1
+        StudentID = `p1 -> 1 + `p2 -> 2 + `p3 -> 3
+        CourseAllocatedTo = `p2 -> `c1 + `p3 -> `c1
+        i9Status = `p1 -> `true + `p2 -> `true + `p3 -> `true
+        academicProbation = `p1 -> `false + `p2 -> `false + `p3 -> `false
+        Applications = `p1 -> `c1 -> 1 + `p2 -> `c1 -> 1 + `p3 -> `c1 -> 1
+        numJobs =  `p1 -> 0 + `p2 -> 1 + `p3 -> 1
+        MaxTAs = `c1 -> 4 
+        CourseID = `c1 -> 1 
+        OfferedNextSem =  `c1 -> `true 
+        CandidateRankings = `c1 -> `p1 -> 3 + `c1 -> `p2 -> 2 + `c1 -> `p3 -> 1
+        Allocations = `c1 -> `p1 -> `false + `c1 -> `p2 -> `true + `c1 -> `p3 -> `true
+    }
+}
+
+
+test suite for roundedAllocation {
+
+    // positive case
+    example is_rouned is {roundedAllocation} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 + `p2 + `p3
+        Course = `c1
+        StudentID = `p1 -> 1 + `p2 -> 2 + `p3 -> 3
+        i9Status = `p1 -> `true + `p2 -> `true + `p3 -> `true
+        CourseAllocatedTo = `p2 -> `c1 + `p3 -> `c1
+        academicProbation = `p1 -> `false + `p2 -> `false + `p3 -> `false
+        Applications = `p1 -> `c1 -> 1 + `p2 -> `c1 -> 1 + `p3 -> `c1 -> 1
+        numJobs =  `p1 -> 0 + `p2 -> 1 + `p3 -> 1
+        MaxTAs = `c1 -> 2 
+        CourseID = `c1 -> 1 
+        OfferedNextSem =  `c1 -> `true 
+        CandidateRankings = `c1 -> `p1 -> 1 + `c1 -> `p2 -> 2 + `c1 -> `p3 -> 3
+        Allocations = `c1 -> `p1 -> `false + `c1 -> `p2 -> `true + `c1 -> `p3 -> `true
+    }
+
+    // negative case (not in allocations)
+    example not_rouned is {not roundedAllocation} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 + `p2 + `p3
+        Course = `c1
+        StudentID = `p1 -> 1 + `p2 -> 2 + `p3 -> 3
+        i9Status = `p1 -> `true + `p2 -> `true + `p3 -> `true
+        CourseAllocatedTo = `p3 -> `c1
+        academicProbation = `p1 -> `false + `p2 -> `false + `p3 -> `false
+        Applications = `p1 -> `c1 -> 1 + `p2 -> `c1 -> 1 + `p3 -> `c1 -> 1
+        numJobs =  `p1 -> 0 + `p2 -> 1 + `p3 -> 1
+        MaxTAs = `c1 -> 2 
+        CourseID = `c1 -> 1 
+        OfferedNextSem =  `c1 -> `true 
+        CandidateRankings = `c1 -> `p1 -> 1 + `c1 -> `p2 -> 2 + `c1 -> `p3 -> 3
+        Allocations = `c1 -> `p1 -> `false + `c1 -> `p2 -> `true + `c1 -> `p3 -> `true
+    }
+
+    // negative case (not in CourseAllocatedTo)
+    example not_rouned2 is {not roundedAllocation} for {
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 + `p2 + `p3
+        Course = `c1
+        StudentID = `p1 -> 1 + `p2 -> 2 + `p3 -> 3
+        i9Status = `p1 -> `true + `p2 -> `true + `p3 -> `true
+        CourseAllocatedTo = `p2 -> `c1 + `p3 -> `c1
+        academicProbation = `p1 -> `false + `p2 -> `false + `p3 -> `false
+        Applications = `p1 -> `c1 -> 1 + `p2 -> `c1 -> 1 + `p3 -> `c1 -> 1
+        numJobs =  `p1 -> 0 + `p2 -> 1 + `p3 -> 1
+        MaxTAs = `c1 -> 2 
+        CourseID = `c1 -> 1 
+        OfferedNextSem =  `c1 -> `true 
+        CandidateRankings = `c1 -> `p1 -> 1 + `c1 -> `p2 -> 2 + `c1 -> `p3 -> 3
+        Allocations = `c1 -> `p1 -> `false + `c1 -> `p2 -> `true + `c1 -> `p3 -> `false
+    }
+}
