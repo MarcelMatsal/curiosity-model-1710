@@ -86,7 +86,7 @@ pred validCourses {
     }
 }
 
-// DONE
+
 pred availableCourses {
     /* 
     predicate that narrows down the courses to those that are available to be matched (should be valid and offered)
@@ -120,7 +120,8 @@ pred isElligible[c: Candidate] {
 // a ta shoud not have applied to more than 4 and less than 1
 //}
 
-// DONE
+
+
 pred validCandidate {
     /*
     Predicate that narrows down to valid candidates 
@@ -139,6 +140,9 @@ pred validCandidate {
         // must have ranked at least 1 and at most 4 courses 
         #{course: Course | some y: Int | cand.Applications[course] = y} >= 1
         #{course: Course | some y: Int | cand.Applications[course] = y} <=4
+
+        // added -> cant have a negative number of jobs
+        cand.numJobs >= 0
     }
 
     // the rankings of the candidate must be continuous from 1 - 4
@@ -160,7 +164,9 @@ pred validCandidate {
     }
 }
 
-// DONE
+
+
+
 pred noOverAllocation {
     /* 
     Predicate that makes sure no courses become over allocated (too many TAs allocated to the class)
@@ -171,7 +177,7 @@ pred noOverAllocation {
 }
 
 
-// DONE
+
 // end state: Any course that is under allocated should not have TAs in their rankings that have allocated as false
 pred endState {
     // having less allocated students that max means that no more students could fill the spot
@@ -207,6 +213,8 @@ pred endState {
     and noWaitlistOnNeededCourse
 }
 
+
+
 /*
 * Makes sure there aren't waitlists on courses that are underallocated.
 */
@@ -221,6 +229,7 @@ pred noWaitlistOnNeededCourse {
 }
 
 
+
 /* Predicate that ensures the allocations are rounded -> I.E. reflected on both the candidate and course */
 pred roundedAllocation {
     // if a candidate gets allocated to the course it must be reflected on both the Candidate and the Course 
@@ -228,6 +237,8 @@ pred roundedAllocation {
         cand.CourseAllocatedTo = course iff course.Allocations[cand] = True
     }
 }
+
+
 
 pred isBestSpotFor[s : Candidate, c : Course] {
     // A candidate only went to a lower rated course if:
@@ -266,6 +277,8 @@ pred courseIsFull[c : Course] {
     // Predicate that determines if a course is full.
     #({cands: Candidate | c.Allocations[cands] = True}) >= c.MaxTAs
 }
+
+
 
 // run here
 run {
