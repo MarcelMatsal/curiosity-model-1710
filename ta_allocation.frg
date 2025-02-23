@@ -1,10 +1,8 @@
 #lang forge/froglet
 
-
 /*
 This file contains the model for the allocation of TAs to courses for hiring
 */ 
-
 
 // sig that can be used to determine if a condition is true or false
 abstract sig Boolean {}
@@ -44,12 +42,15 @@ sig Course {
     Allocations: pfunc Candidate -> Boolean
 }
 
+// Predicates
 ------------------------------------------------------------------------------------------------------------------------
+
+/* 
+* Predicate that narrows down all courses to those that are valid courses (don't share ID with another course and
+* have rankings that are continuous and not repetitive)
+*/
 pred validCourses {
-    /* 
-    Predicate that narrows down all courses to those that are valid courses (don't share ID with another course and
-    have rankings that are continuous and not repetitive)
-    */
+    
     all disj course, course2: Course | {
         // all courses have and ID greater than 0
         course.CourseID > 0
@@ -86,11 +87,10 @@ pred validCourses {
     }
 }
 
-
+/* 
+* predicate that narrows down the courses to those that are available to be matched (should be valid and offered)
+*/
 pred availableCourses {
-    /* 
-    predicate that narrows down the courses to those that are available to be matched (should be valid and offered)
-    */
     all course: Course | {
         // all the courses considered must be available the upcoming semester
         course.OfferedNextSem = True
@@ -100,11 +100,13 @@ pred availableCourses {
 }
 
 
-// Predicate to determine if a candidate is elible to TA
-// Includes criteria of:
-// - has completed I9
-// - is not on academic probation
-// - has less than 2 jobs (if they are international)
+/*
+* Predicate to determine if a candidate is elible to TA
+* Includes criteria of:
+* - has completed I9
+* - is not on academic probation
+* - has less than 2 jobs (if they are international
+*/
 pred isElligible[c: Candidate] {
     c.i9Status = True // I9
     and
@@ -113,20 +115,11 @@ pred isElligible[c: Candidate] {
     (c.isInternational = True implies c.numJobs < 2) // International students can only have 2 jobs (including the TA job)
 }
 
-// verify that the rankings are continuous
-// pred ranking verifier (must be linear)
 
-// numberApplications {
-// a ta shoud not have applied to more than 4 and less than 1
-//}
-
-
-
+/*
+Predicate that narrows down to valid candidates 
+*/ 
 pred validCandidate {
-    /*
-    Predicate that narrows down to valid candidates 
-    */ 
-
     // all candidates must have different StudentID numbers (maybe move to its own pred)
     all disj cand1, cand2: Candidate | {
         cand1.StudentID > 0
@@ -165,20 +158,19 @@ pred validCandidate {
 }
 
 
-
-
+/* 
+Predicate that makes sure no courses become over allocated (too many TAs allocated to the class)
+*/
 pred noOverAllocation {
-    /* 
-    Predicate that makes sure no courses become over allocated (too many TAs allocated to the class)
-    */
     all course: Course | {
         #{cand: Candidate | course.Allocations[cand] = True} <= course.MaxTAs
     }
 }
 
 
-
-// end state: Any course that is under allocated should not have TAs in their rankings that have allocated as false
+/*
+* End state: Any course that is under allocated should not have TAs in their rankings that have allocated as false
+*/
 pred endState {
     // having less allocated students that max means that no more students could fill the spot
     // if not full number of TAs
@@ -187,7 +179,6 @@ pred endState {
             all cand: Candidate | {
                 // if the candidate was ranked by the course, then it must be the case that the candidate has a match
                 (some course.CandidateRankings[cand] and some cand.Applications[course]) implies some cand.CourseAllocatedTo
-                ----- THIS MIGHT BE GOOD OUTSIDE OF THE CONSTRAINT OF COURSE BEING UNDERALLOCATED
                 // can't be the case that some other candidate was not allocated, had it ranked, and was ranked higher than someone allocated
                 not ( 
                     some cand2: Candidate | {
@@ -208,11 +199,9 @@ pred endState {
             }
         }
     }
-
     // If a candidate wasn't hired - why?
     and noWaitlistOnNeededCourse
 }
-
 
 
 /*
@@ -229,7 +218,6 @@ pred noWaitlistOnNeededCourse {
 }
 
 
-
 /* Predicate that ensures the allocations are rounded -> I.E. reflected on both the candidate and course */
 pred roundedAllocation {
     // if a candidate gets allocated to the course it must be reflected on both the Candidate and the Course 
@@ -239,24 +227,29 @@ pred roundedAllocation {
 }
 
 
-
+/* Predicate to ensure an allocation was the "best choice" for a candidate. */
 pred isBestSpotFor[s : Candidate, c : Course] {
     // A candidate only went to a lower rated course if:
     // 1. They had tying prefs, and went to higher level course.
     // 2. The course had exactly MaxTAs applicants or less.
-    all otherCourse : Course | {
+    (s.Applications[c] > 0 and c.CandidateRankings[s] > 0) 
+    and
+    (all otherCourse : Course | {
         (otherCourse != c and s.Applications[otherCourse] > 0 and otherCourse.CandidateRankings[s] > 0) implies {
-            (s.Applications[otherCourse] < s.Applications[c] implies (
+            (s.Applications[otherCourse] < s.Applications[c] and
                 // Othercourse needed s more.
                 courseNeededMore[c, s, otherCourse]
-            )) 
+            )
             or
-            (s.Applications[otherCourse] = s.Applications[c] and (otherCourse.CourseID < c.CourseID or  courseNeededMore[c, s, otherCourse]))
+            (s.Applications[otherCourse] = s.Applications[c] and (otherCourse.CourseID < c.CourseID or courseNeededMore[c, s, otherCourse]))
             or
             courseIsFull[otherCourse]
+            or 
+            (s.Applications[c] < s.Applications[otherCourse] and not courseNeededMore[otherCourse, s, c])
         }
-    }
+    })
 }
+
 
 /*
 * Affirm a course needed a TA more than another.
@@ -270,6 +263,7 @@ pred courseNeededMore[inNeedCourse : Course, student : Candidate, prefCourse : C
     }
 }
 
+
 /*
 * Predicate that determines if a course is full.
 */
@@ -279,8 +273,7 @@ pred courseIsFull[c : Course] {
 }
 
 
-
-// run here
+// Example run.
 run {
     availableCourses
     validCandidate

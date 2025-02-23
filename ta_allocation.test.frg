@@ -76,18 +76,18 @@ test suite for availableCourses {
     }
     // no 1 ranking
     example not_available5 is {not availableCourses} for {
-            Boolean =  `true + `false
-            True = `true
-            False = `false
-            Candidate = `p1 + `p2 + `p3
-            StudentID = `p1 -> 1 + `p2 -> 2 + `p3 -> 3
-            i9Status = `p1 -> `true + `p2 -> `true + `p3 -> `true
-            academicProbation = `p1 -> `false + `p2 -> `false + `p3 -> `false
-            Course = `c1 + `c2
-            MaxTAs = `c1 -> 2 + `c2 -> 2
-            CourseID = `c1 -> 1 + `c2 -> 2
-            OfferedNextSem = `c1 -> `true +  `c2 -> `true
-            CandidateRankings = `c1 -> `p1 -> 2 + `c1 -> `p2 -> 3 + `c1 -> `p3 -> 4
+        Boolean =  `true + `false
+        True = `true
+        False = `false
+        Candidate = `p1 + `p2 + `p3
+        StudentID = `p1 -> 1 + `p2 -> 2 + `p3 -> 3
+        i9Status = `p1 -> `true + `p2 -> `true + `p3 -> `true
+        academicProbation = `p1 -> `false + `p2 -> `false + `p3 -> `false
+        Course = `c1 + `c2
+        MaxTAs = `c1 -> 2 + `c2 -> 2
+        CourseID = `c1 -> 1 + `c2 -> 2
+        OfferedNextSem = `c1 -> `true +  `c2 -> `true
+        CandidateRankings = `c1 -> `p1 -> 2 + `c1 -> `p2 -> 3 + `c1 -> `p3 -> 4
     }
 }
 
@@ -138,7 +138,6 @@ test suite for validCandidate {
         OfferedNextSem =  `c1 -> `true + `c2 -> `true + `c3 -> `true + `c4 -> `true
         Allocations = `c1 -> `p1 -> `false + `c2 -> `p1 -> `false + `c3 -> `p1 -> `false + `c4 -> `p1 -> `false
     }
-
 
     // cases where ranked multiple courses and doubled up some rankings
     example correct_candidate3 is {validCandidate} for {
@@ -264,7 +263,6 @@ test suite for validCandidate {
         Allocations = `c1 -> `p1 -> `false + `c2 -> `p1 -> `false + `c3 -> `p1 -> `false + `c4 -> `p1 -> `false
     }
 
-
     // case ranked courses with gap in ranking
     example invalid_candidate5 is {not validCandidate} for {
         Boolean =  `true + `false
@@ -340,6 +338,7 @@ test suite for noOverAllocation {
         OfferedNextSem =  `c1 -> `true   
         Allocations = `c1 -> `p1 -> `false
     }
+
     // less allocations than max
     example no_over_allocation2 is {noOverAllocation} for {
         Boolean =  `true + `false
@@ -396,7 +395,6 @@ test suite for noOverAllocation {
 }
 
 
-
 test suite for endState {
 
     // someone not matched to it and open slot but they are matched somewhere else
@@ -417,6 +415,7 @@ test suite for endState {
         CandidateRankings = `c1 -> `p1 -> 1 + `c1 -> `p2 -> 2 + `c1 -> `p3 -> 3 + `c2 -> `p3 -> 1
         Allocations = `c1 -> `p1 -> `true + `c1 -> `p2 -> `true + `c1 -> `p3 -> `false +  `c2 -> `p3 -> `true
     }
+
     // A student can't be allocated to a course they didn't apply to
     example misranked_end_state is {not endState} for {
         Boolean =  `true + `false
@@ -435,6 +434,7 @@ test suite for endState {
         CandidateRankings = `c1 -> `p1 -> 1 + `c1 -> `p2 -> 2
         Allocations = `c1 -> `p1 -> `true + `c1 -> `p2 -> `true
     }
+
     // Even if underallocated, can't allocate a student who was unranked.
     example notranked_end_state is {not endState} for {
         Boolean =  `true + `false
@@ -491,6 +491,7 @@ test suite for endState {
         CandidateRankings = `c1 -> `p1 -> 1 + `c1 -> `p2 -> 2 + `c1 -> `p3 -> 3
         Allocations = `c1 -> `p1 -> `false + `c1 -> `p2 -> `true + `c1 -> `p3 -> `false
     }
+
     // candidate ranked by the course but not matched
     example not_end_state is {not endState} for {
         Boolean =  `true + `false
@@ -528,6 +529,7 @@ test suite for endState {
         CandidateRankings = `c1 -> `p1 -> 1 + `c1 -> `p2 -> 2 + `c1 -> `p3 -> 3
         Allocations = `c1 -> `p1 -> `false + `c1 -> `p2 -> `true + `c1 -> `p3 -> `false
     }
+
     // If a course isn't full, there should not be a waitlist for it.
     example not_end_state_full is {not endState} for {
         Boolean =  `true + `false
@@ -546,6 +548,7 @@ test suite for endState {
         CandidateRankings = `c1 -> `p1 -> 1 + `c1 -> `p2 -> 2 + `c1 -> `p3 -> 3
         Allocations = `c1 -> `p1 -> `true + `c1 -> `p2 -> `true + `c1 -> `p3 -> `false
     }
+
     // Basic singular allocation.
     example end_state_all_alloc is {endState} for {
         Boolean =  `true + `false
@@ -564,6 +567,7 @@ test suite for endState {
         CandidateRankings = `c1 -> `p1 -> 1 + `c1 -> `p2 -> 2 + `c1 -> `p3 -> 3
         Allocations = `c1 -> `p1 -> `true + `c1 -> `p2 -> `true + `c1 -> `p3 -> `true
     }
+
     // Against prefs to fill
     example basic_against_prefs_end_state is {endState} for {
         Boolean =  `true + `false
@@ -582,6 +586,7 @@ test suite for endState {
         CandidateRankings = `c1 -> `p1 -> 1 + `c1 -> `p2 -> 3 + `c1 -> `p3 -> 2 + `c2 -> `p3 -> 1
         Allocations = `c1 -> `p1 -> `true + `c1 -> `p2 -> `true + `c1 -> `p3 -> `false +  `c2 -> `p3 -> `true
     }
+
     // MUST be pulled against prefs
     example neg_basic_against_prefs_end_state is {not endState} for {
         Boolean =  `true + `false
@@ -600,6 +605,7 @@ test suite for endState {
         CandidateRankings = `c1 -> `p1 -> 1 + `c1 -> `p2 -> 3 + `c1 -> `p3 -> 2 + `c2 -> `p3 -> 1
         Allocations = `c1 -> `p1 -> `true + `c1 -> `p2 -> `false + `c1 -> `p3 -> `true +  `c2 -> `p3 -> `false
     }
+
     // Tie breaking
     example neg_break_tie is {not endState} for {
         Boolean =  `true + `false
@@ -882,6 +888,158 @@ test suite for roundedAllocation {
     }
 }
 
+
+/* Testing they actually applied */
+pred applied[s : Candidate, c : Course] {
+    s.Applications[c] > 0
+}
+
+/* Testing they were actually rankings */
+pred ranked[s : Candidate, c : Course] {
+    c.CandidateRankings[s] > 0
+}
+
+
+test suite for isBestSpotFor {
+    test expect {
+        // Nowhere else to go
+        noOtherChoices: {
+            one c : Course | {
+                one s : Candidate | {
+                    s.Applications[c] = 1
+                    c.CandidateRankings[s] = 1
+                    c.MaxTAs = 1
+                    isBestSpotFor[s, c]
+                }
+            }
+        } is sat
+        allFull: {
+            some c1, c2 : Course | {
+                c1 != c2
+                one s : Candidate | {
+                    s.Applications[c1] = 1
+                    s.Applications[c2] = 1
+                    c1.CandidateRankings[s] = 1
+                    c2.CandidateRankings[s] = 2
+                    courseIsFull[c2]
+                    c1.MaxTAs = 2
+                    isBestSpotFor[s, c1]
+                }
+            }
+        } is sat
+        // Lower ranked but needed.
+        againstPrefButDef : {
+            some c, c2 : Course | {
+                c != c2
+                one s : Candidate | {
+                    s.Applications[c] = 1
+                    s.Applications[c2] = 2
+                    c.CandidateRankings[s] = 1
+                    c2.CandidateRankings[s] = 1
+                    and
+                    c.MaxTAs = 1
+                    c2.MaxTAs = 3
+                    isBestSpotFor[s, c2]
+                }
+            }
+        } is sat
+        // Tie, went to higher course
+        tiedHigher : {
+            validCandidate and
+            validCourses and
+            (some s : Candidate | {
+                (some c1, c2 : Course | {
+                    c1 != c2
+                    not courseIsFull[c1]
+                    not courseIsFull[c2]
+                    not courseNeededMore[c1, s, c2]
+                    c1.MaxTAs = 1
+                    c2.MaxTAs = 1
+                    (s.Applications[c1] = 1)
+                    (s.Applications[c2] = 1)
+                    (c1.CandidateRankings[s] = 1)
+                    (c2.CandidateRankings[s] = 1)
+                    (c1.CourseID = 3)
+                    (c2.CourseID = 2)
+                    and
+                    not courseIsFull[c1]
+                    not courseIsFull[c2]
+                    isBestSpotFor[s, c1]
+                }
+            )}
+        )} is sat
+        // Tied, went to lower course. BAD!
+        tiedLower : {
+            validCandidate and
+            validCourses and
+            (some s : Candidate | {
+                #Course = 2
+                (some c1, c2 : Course | {
+                    c1 != c2
+                    not courseIsFull[c1]
+                    not courseIsFull[c2]
+                    not courseNeededMore[c1, s, c2]
+                    c1.MaxTAs = 1
+                    c2.MaxTAs = 1
+                    (s.Applications[c1] = 1)
+                    (s.Applications[c2] = 1)
+                    (c1.CandidateRankings[s] = 1)
+                    (c2.CandidateRankings[s] = 1)
+                    (c1.CourseID = 2)
+                    (c2.CourseID = 4)
+                    and
+                    not courseIsFull[c1]
+                    not courseIsFull[c2]
+                    isBestSpotFor[s, c1]
+                }
+            )}
+        )} is unsat
+    }
+
+    // They actually applied to the course
+    assert all s : Candidate, c : Course | { applied[s, c] }  is necessary for isBestSpotFor[s, c]
+
+    // The course actually ranked them
+    assert all s : Candidate, c : Course | { ranked[s, c] }  is necessary for isBestSpotFor[s, c]
+}
+
+test suite for courseNeededMore {
+    test expect {
+        // Course does need applicant more.
+        greaterDeficit: {
+            some c, c2 : Course | {
+                c != c2
+                one s : Candidate | {
+                    s.Applications[c] = 1
+                    s.Applications[c2] = 1
+                    c.CandidateRankings[s] = 1
+                    c2.CandidateRankings[s] = 1
+                     and
+                    c.MaxTAs = 3
+                    c2.MaxTAs = 1
+                    courseNeededMore[c, s, c2]
+                }
+            }
+        } is sat
+        // Other course needs them more!
+        smallerDeficit : {
+            some c, c2 : Course | {
+                c != c2
+                one s : Candidate | {
+                    s.Applications[c] = 1
+                    s.Applications[c2] = 1
+                    c.CandidateRankings[s] = 1
+                    c2.CandidateRankings[s] = 1
+                    and
+                    c.MaxTAs = 1
+                    c2.MaxTAs = 3
+                    courseNeededMore[c, s, c2]
+                }
+            }
+        } is unsat
+    }
+}
+
 // some wholistic tests for the model working together 
 test suite for Cohesive {
 
@@ -896,7 +1054,6 @@ test suite for Cohesive {
         noOverAllocation
         endState
         roundedAllocation} for {
-
             Boolean =  `true + `false
             True = `true
             False = `false
@@ -916,9 +1073,6 @@ test suite for Cohesive {
                 +  `c2 -> `p3 -> `true
 
     }
-
-
-
 
     // condition of model violated: intenrational student >= 2 jobs
     example not_working_together is {
@@ -975,9 +1129,7 @@ test suite for Cohesive {
             CandidateRankings = `c1 -> `p1 -> 1 + `c1 -> `p2 -> 2 + `c1 -> `p3 -> 3 + `c2 -> `p2 -> 2 + `c2 -> `p3 -> 1
             Allocations = `c1 -> `p1 -> `true + `c1 -> `p2 -> `false + `c1 -> `p3 -> `false + `c2 -> `p1 -> `false + `c2 -> `p2 -> `true
                 +  `c2 -> `p3 -> `true
-
     }
-
 
     // condition of model violated: academic violation for a candidate
     example not_working_together3 is {
@@ -1007,7 +1159,6 @@ test suite for Cohesive {
                 +  `c2 -> `p3 -> `true
 
     }
-
 
     // condition of model violated: course not offered next semester
     example not_working_together4 is {
@@ -1151,7 +1302,6 @@ test suite for Cohesive {
                 +  `c2 -> `p3 -> `true
     }
 
-
     // over allocated a course
     example not_working_together9 is {
         not (availableCourses and
@@ -1179,6 +1329,4 @@ test suite for Cohesive {
             Allocations = `c1 -> `p1 -> `true + `c1 -> `p2 -> `false + `c1 -> `p3 -> `false + `c2 -> `p1 -> `false + `c2 -> `p2 -> `true
                 +  `c2 -> `p3 -> `true
     }
-
 }
-
