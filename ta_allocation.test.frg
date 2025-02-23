@@ -103,6 +103,8 @@ pred correctNumApplications {
 
 test suite for validCandidate {
 
+    assert all cand: Candidate | cand.numJobs >= 0 is necessary for validCandidate
+
     // most basic candidate, has a basic ranking of preferences
     example correct_candidate is {validCandidate} for {
         Boolean =  `true + `false
@@ -823,6 +825,9 @@ test suite for noWaitlistOnNeededCourse {
         CandidateRankings = `c1 -> `p1 -> 3 + `c1 -> `p2 -> 2 + `c1 -> `p3 -> 1
         Allocations = `c1 -> `p1 -> `false + `c1 -> `p2 -> `true + `c1 -> `p3 -> `true
     }
+
+    assert endState is sufficient for noWaitlistOnNeededCourse
+
 }
 
 test suite for roundedAllocation {
