@@ -273,8 +273,8 @@ pred courseIsFull[c : Course] {
 }
 
 
-// Example run.
-run {
+// Example run of the system functioning as intended
+our_system: run {
     availableCourses
     validCandidate
     noOverAllocation
@@ -284,3 +284,32 @@ run {
         c.MaxTAs = 5
     }
 } for exactly 2 Course, exactly 6 Candidate
+
+
+// runs to experiment and understand the intricacies within out system of allocating TAs
+// what happens when the allocations the TA sees does not have to be reflected in what the courses see
+loosen_roundedAllocation: run {
+    availableCourses
+    validCandidate
+    noOverAllocation
+    endState
+    // roundedAllocation
+    all c : Course | {
+        c.MaxTAs = 5
+    }
+} for exactly 2 Course, exactly 6 Candidate
+
+
+// runs to experiment and understand the intricacies within out system of allocating TAs
+// what happens when we allow courses to become overallocated (causes the system to fail in more than one way than we would have assumed)
+allow_overallocation: run {
+    availableCourses
+    validCandidate
+    // noOverAllocation
+    endState
+    roundedAllocation
+    all c : Course | {
+        c.MaxTAs = 2
+    }
+} for exactly 2 Course, exactly 6 Candidate
+
