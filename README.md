@@ -25,7 +25,7 @@ Notably, we conceived two strong formal rules during the project:
 
 These formal rules will be extremely helpful in the years to come, as MTAs will now have a stronger guideline for allocating candidates to courses. This will aid them in explaining the process to curious students and professors, clarifying any concerns anyone may have. Additionally, now that it is formally written and we have studied that it works through the visualizations, we can feel confident that we are giving candidates and courses good matches.
 
-We also wanted to note that we included other run commands that omitted some constraints from our model to see how it would react. This was purely to understand the intricacies of the system and see how things could go awry if the MTAs stop considering something. With the omissions, the matches were no longer logical, leading us to be thankful that we modeled this system as we saw 
+We also wanted to note that we included other run commands that omitted some constraints from our model to see how it would react. This was purely to understand the intricacies of the system and see how things could go awry if the MTAs stop considering something. With the omissions, the matches were no longer logical, leading us to be thankful that we modeled this system as it taught us more about the system we are currently using. 
 
 ## Signatures and Predicates
 
@@ -72,6 +72,8 @@ Finally, we created a test suite called `Cohesive` that verified the collision o
 
 
 Overall we tried to be rigorous in our testing, making use of the different features of Forge, and being sure that all predicates used had some form of positive and negative testing. We included comments within the each testing suite to describe the conditions that we were testing for in each predicate. To be specific, the tests that verified our domain are the ones related to `validCourse`, `validCandidate`, `correctNumApplications` etc. The tests more specific for testing the model itself would be `Cohesive`, `EndState`, `noWailistOnNeededCourse`, etc.
+
+One note on testing is that we didn't use induction or traces as a means of verification due to the parallel nature of the hiring process (it is far from linear). Thus, after discussion with Prof Tim, we decided to do what we felt most important for the situation, which was mostly look at the final state (the allocation).
 
 ## Documentation
 
